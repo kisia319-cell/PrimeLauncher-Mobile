@@ -126,7 +126,7 @@ const primeLanguageObserver=new MutationObserver(()=>{const lang=localStorage.ge
 function show(page){
  scene=page;document.body.classList.toggle('battle-active',page==='battle');pages.forEach(p=>$(p+'-page').classList.toggle('hidden',p!==page));
  document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
- if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){requestAnimationFrame(()=>{resizeArenaCanvas();$('arena').focus();startLoop();});}else stopLoop();if(page==='history')renderHistory();
+ if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){const redraw=()=>{if(scene!=='battle')return;resizeArenaCanvas();if(match)drawArena();};requestAnimationFrame(()=>{redraw();$('arena').focus();startLoop();});setTimeout(redraw,250);setTimeout(redraw,700);setTimeout(redraw,1400);}else stopLoop();if(page==='history')renderHistory();
 }
 document.querySelectorAll('.nav button[data-page]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));
 $('enter-prime').addEventListener('click',()=>show('menu'));
@@ -141,7 +141,7 @@ function beginSearch(){
  if(matchKind==='online'){$('search-box').classList.remove('hidden');$('search-title').textContent='Онлайн-режим в доработке';$('search-detail').textContent='Зайдите в тренировку. Онлайн-матчи пока недоступны.';return;}
  $('find-match').disabled=true;$('search-box').classList.remove('hidden');
  $('search-title').textContent='Подготовка тренировочной арены...';$('search-detail').textContent='Подбираем ботов · ELO не меняется · +5 монет каждую секунду';
- let ticks=0;searchTimer=window.setInterval(()=>{ticks++;$('search-title').textContent=['Подготовка арены...','Расстановка башен...','Формируем команды...'][ticks%3];if(ticks>=3){clearInterval(searchTimer);createMatch();}},550);
+ let ticks=0;searchTimer=window.setInterval(()=>{ticks++;$('search-title').textContent=['Подготовка арены...','Расстановка башен...','Формируем команды...'][ticks%3];if(ticks>=3){clearInterval(searchTimer);try{createMatch();}catch(error){$('find-match').disabled=false;window.primeReportError?.(error?.stack||error?.message||error);}}},550);
 }
 $('find-match').addEventListener('click',beginSearch);
 const languageSelect=$('prime-language');if(languageSelect){languageSelect.value=localStorage.getItem(PRIME_LANG_KEY)||'ru';languageSelect.addEventListener('change',()=>applyPrimeLanguage(languageSelect.value));}applyPrimeLanguage(localStorage.getItem(PRIME_LANG_KEY)||'ru');
@@ -812,7 +812,7 @@ function drawSupportBuildings(ctx,camX,camY){
  }
 }
 function drawArena(){
- const c=$('arena'),ctx=c.getContext('2d');if(!ctx)return;
+ const c=$('arena');if(!c)return;const ctx=c.getContext('2d');if(!ctx){window.primeReportError?.('Canvas 2D недоступен');return;}
  try{
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
@@ -874,6 +874,7 @@ function drawArena(){
  drawMiniMap();
  // Arena title removed.
  }catch(error){
+  window.primeReportError?.(error?.stack||error?.message||error);
   try{ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#29452c';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('Не удалось отрисовать арену',c.width/2,Math.max(40,c.height/2));const hud=$('performance-hud');if(hud)hud.textContent='ОШИБКА ОТРИСОВКИ: '+String(error?.message||error).slice(0,80);}catch(_){}
  }
 }
