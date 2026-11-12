@@ -7,7 +7,7 @@ android {
     namespace = "com.prime.launcher"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.prime.launcher"
+        applicationId = "com.prime.launcher.mobile"
         minSdk = 26
         targetSdk = 35
         versionCode = providers.environmentVariable("GITHUB_RUN_NUMBER").orElse("1").get().toInt()
