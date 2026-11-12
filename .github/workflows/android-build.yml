@@ -20,17 +20,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Create Android home and seed signing key before caching
+      - name: Create persistent Prime signing key before cache restore
         run: |
           mkdir -p "$HOME/.android"
-          if [ ! -f "$HOME/.android/debug.keystore" ]; then
-            keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          if [ ! -f "$HOME/.android/prime-mobile-signing.jks" ]; then
+            keytool -genkeypair -v -storetype JKS -keystore "$HOME/.android/prime-mobile-signing.jks" -storepass android -alias primemobile -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=PrimeLauncher Mobile,O=PrimeLauncher,C=US"
           fi
-      - name: Restore stable debug signing key for seamless sideload updates
+      - name: Restore persistent Prime signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: prime-mobile-debug-signing-v2
+          path: ~/.android/prime-mobile-signing.jks
+          key: prime-mobile-stable-signing-v3
+      - name: Verify persistent Prime signing certificate
+        run: |
+          keytool -list -v -keystore "$HOME/.android/prime-mobile-signing.jks" -storepass android -alias primemobile | grep -E 'SHA256|SHA1'
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -40,8 +43,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+      - name: Build debug APK with the persistent Prime signing key
+        env:
+          PRIME_SIGNING_KEY: ${{ runner.temp }}/prime-mobile-signing.jks
+        run: |
+          cp "$HOME/.android/prime-mobile-signing.jks" "$PRIME_SIGNING_KEY"
+          gradle --no-daemon assembleDebug
       - name: Prepare stable release asset name
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: cp app/build/outputs/apk/debug/app-debug.apk PrimeLauncher-Mobile.apk
