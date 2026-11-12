@@ -753,7 +753,13 @@ function drawPrimeFighter(ctx,f,camX,camY,isPlayer,isAlly=false){
  if(!isPlayer){ctx.fillStyle='#140d0b';ctx.fillRect(x-18,y-42,36,4);ctx.fillStyle=f.team===0?'#70d8ff':'#ff765f';ctx.fillRect(x-18,y-42,36*Math.max(0,f.hp/f.maxHp),4);}
 }
 function buildTerrainCache(seed){
- const c=document.createElement('canvas');c.width=SIZE*TILE;c.height=SIZE*TILE;const g=c.getContext('2d',{alpha:false});
+ // Android WebView can fail to allocate a 3200x3200 GPU texture.
+ // Keep the mobile terrain atlas at 1600x1600 while preserving world coordinates.
+ const scale=(/Android/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches)?0.5:1;
+ const c=document.createElement('canvas');c.width=Math.max(1,Math.round(SIZE*TILE*scale));c.height=Math.max(1,Math.round(SIZE*TILE*scale));
+ c.dataset.worldScale=String(scale);
+ const g=c.getContext('2d');if(!g)throw new Error('Не удалось создать 2D-холст карты');
+ g.setTransform(scale,0,0,scale,0,0);
  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
   const edge=Math.min(x,y,SIZE-1-x,SIZE-1-y),n=(x*17+y*31+(x*y)%23+seed)%9,hash=(x*73856093^y*19349663^seed)>>>0,sx=x*TILE,sy=y*TILE;
   if(edge<WATER_BORDER){
@@ -817,7 +823,12 @@ function drawArena(){
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
  const p=match.player,camX=p.x-w/2,camY=p.y-h/2;
- if(!match.terrainCanvas)match.terrainCanvas=buildTerrainCache(match.worldSeed);ctx.drawImage(match.terrainCanvas,camX,camY,w,h,0,0,w,h);drawPrimeWorldDecor(ctx,camX,camY,w,h);
+ // Paint a visible base layer first: the arena can never remain a blank black canvas.
+ ctx.fillStyle='#568d4b';ctx.fillRect(0,0,w,h);
+ if(!match.terrainCanvas)match.terrainCanvas=buildTerrainCache(match.worldSeed);
+ const terrainScale=Number(match.terrainCanvas.dataset.worldScale)||1;
+ ctx.drawImage(match.terrainCanvas,camX*terrainScale,camY*terrainScale,w*terrainScale,h*terrainScale,0,0,w,h);
+ drawPrimeWorldDecor(ctx,camX,camY,w,h);
  const x0=Math.max(0,Math.floor(camX/TILE)),y0=Math.max(0,Math.floor(camY/TILE)),x1=Math.min(SIZE,Math.ceil((camX+w)/TILE)+1),y1=Math.min(SIZE,Math.ceil((camY+h)/TILE)+1);
  const waveTime=performance.now()/720;
  const base=match.playerBase;ctx.save();ctx.translate(base.x-camX,base.y-camY);ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,20,82,24,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#343d48';ctx.fillRect(-65,-22,130,48);ctx.fillStyle='#68798a';ctx.fillRect(-58,-30,116,12);ctx.fillStyle='#b4c4d3';for(let k=-2;k<=2;k++)ctx.fillRect(k*24-7,-39,14,10);ctx.fillStyle='#ff9a4d';ctx.fillRect(-8,-18,16,38);ctx.fillStyle='#f8d08a';ctx.fillRect(-3,-14,6,22);ctx.strokeStyle='#ffbf78';ctx.lineWidth=3;ctx.strokeRect(-65,-22,130,48);ctx.restore();
@@ -875,7 +886,7 @@ function drawArena(){
  // Arena title removed.
  }catch(error){
   window.primeReportError?.(error?.stack||error?.message||error);
-  try{ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#29452c';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('Не удалось отрисовать арену',c.width/2,Math.max(40,c.height/2));const hud=$('performance-hud');if(hud)hud.textContent='ОШИБКА ОТРИСОВКИ: '+String(error?.message||error).slice(0,80);}catch(_){}
+  try{const rect=c.getBoundingClientRect();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#29452c';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('Сбой графики: '+String(error?.message||error).slice(0,90),c.width/2,c.height/2);const hud=$('performance-hud');if(hud)hud.textContent='ОШИБКА ОТРИСОВКИ: '+String(error?.message||error).slice(0,80);if(window.primeReportError)window.primeReportError(error?.stack||error?.message||error);}catch(_){}
  }
 }
 function drawMiniMap(){
