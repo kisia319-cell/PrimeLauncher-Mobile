@@ -23,6 +23,21 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
 }
+// Always sign mobile debug APKs with the exact persistent key restored by CI.
+android.signingConfigs.create("primeStable") {
+    storeFile = file(
+        System.getenv("PRIME_SIGNING_KEY")
+            ?: "${System.getProperty("user.home")}/.android/prime-mobile-signing.jks"
+    )
+    storePassword = "android"
+    keyAlias = "primemobile"
+    keyPassword = "android"
+    storeType = "JKS"
+}
+android.buildTypes.getByName("debug") {
+    signingConfig = android.signingConfigs.getByName("primeStable")
+}
+
 dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
     implementation("androidx.core:core-ktx:1.15.0")
