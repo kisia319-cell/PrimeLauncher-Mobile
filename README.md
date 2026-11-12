@@ -1,42 +1,28 @@
-# PrimeLauncher Mobile
+# PrimeLauncher Mobile (Android)
 
-Android companion app for the PrimeLauncher ecosystem.
+Android-порт PrimeLauncher из [SkyRealm-PC-Launcher](https://github.com/kisia319-cell/SkyRealm-PC-Launcher).
 
-## Current status
+## Что перенесено
+- Главный экран Prime, выбор команд 1×1 / 2×2 / 3×3.
+- Тренировочный режим с ботами и существующая логика матча.
+- Арена, строительство и улучшение построек, войска, экономика матча.
+- Локальный профиль, ELO, рейтинг и история матчей — в рамках исходной реализации PC.
+- Настройки и русский/английский интерфейс.
+- Сенсорный джойстик, атака, бег, строительство и пауза для Android.
 
-Early development scaffold (version 0.1.0). The app currently includes:
-- Native Android UI built with Kotlin and Jetpack Compose.
-- Dark Prime-themed home screen.
-- Bottom navigation for Home, Ranking, News, and Profile.
-- GitHub Actions workflow that builds and uploads a debug APK.
+## Архитектура
+- Android оболочка на Kotlin + Jetpack Compose.
+- Встроенный Prime UI/game runtime загружается из `app/src/main/assets/prime/` через Android WebView Asset Loader.
+- `prime-world.js` перенесён из PC-репозитория без изменения игровой логики; мобильные элементы управления добавлены отдельно в HTML.
+- Сохранения игры используют локальное хранилище WebView на устройстве.
 
-The Ranking, News, Profile, authentication, and PC synchronization screens are placeholders until the shared Prime backend/API is connected. No live multiplayer, account, or ranking data is claimed at this stage.
+## Ограничения текущего порта
+- Сетевой подбор реальных игроков в исходном PC Prime ещё не подключён; онлайн-кнопка сохраняет исходное сообщение о доработке.
+- Рейтинг и история в этой версии локальные, не синхронизируются с ПК или другими устройствами.
+- Windows-функции запуска SkyRealm/Mod Studio, диагностики ПК и работы с файлами Windows на Android не переносятся.
+- Сборка APK выполняется GitHub Actions; успешный APK появится как artifact после зелёного workflow.
 
-## Requirements
+## Сборка
+Открой проект в Android Studio с Android SDK 35 и JDK 17, затем запусти задачу `assembleDebug`.
 
-- Android Studio with Android SDK 35
-- JDK 17
-- Gradle 8.9
-- Android 8.0 (API 26) or newer
-
-## Build
-
-Open the project in Android Studio and sync Gradle, then run the `app` configuration on an Android device or emulator.
-
-For a command-line debug build:
-
-```bash
-gradle --no-daemon assembleDebug
-```
-
-APK output:
-
-```
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-Every push to `main` and every pull request targeting `main` triggers the Android build workflow. The resulting APK is available in the workflow run's Artifacts section.
-
-## Package
-
-`com.prime.launcher`
+APK: `app/build/outputs/apk/debug/app-debug.apk`.
