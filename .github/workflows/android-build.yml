@@ -1,5 +1,9 @@
 name: Android APK
 
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   push:
     branches: [main]
@@ -32,6 +36,9 @@ jobs:
           gradle-version: '8.9'
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
+      - name: Prepare stable release asset name
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: cp app/build/outputs/apk/debug/app-debug.apk PrimeLauncher-Mobile.apk
       - name: Publish APK release for in-app updater
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
@@ -39,7 +46,7 @@ jobs:
           tag_name: mobile-${{ github.run_number }}
           name: PrimeLauncher Mobile ${{ github.run_number }}
           generate_release_notes: true
-          files: app/build/outputs/apk/debug/app-debug.apk
+          files: PrimeLauncher-Mobile.apk
           fail_on_unmatched_files: true
       - name: Upload APK
         uses: actions/upload-artifact@v4
