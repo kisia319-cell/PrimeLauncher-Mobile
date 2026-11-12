@@ -21,6 +21,7 @@ import java.io.File
 import java.io.FileOutputStream
 import android.view.View
 import android.webkit.WebChromeClient
+import android.webkit.ConsoleMessage
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
@@ -74,7 +75,12 @@ class MainActivity : ComponentActivity() {
                         settings.allowContentAccess = false
                         isVerticalScrollBarEnabled = false
                         isHorizontalScrollBarEnabled = false
-                        webChromeClient = WebChromeClient()
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                                android.util.Log.e("PrimeWebView", "${message.message()} (${message.sourceId()}:${message.lineNumber()})")
+                                return true
+                            }
+                        }
                         webViewClient = object : WebViewClientCompat() {
                             override fun shouldInterceptRequest(
                                 view: WebView,
@@ -99,9 +105,9 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun setBattleMode(active: Boolean) {
             runOnUiThread {
-                requestedOrientation = if (active) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                requestedOrientation = if (active) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                     else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                window.decorView.postDelayed({ primeWebView?.evaluateJavascript("window.dispatchEvent(new Event('resize'))", null) }, 350)
+                window.decorView.postDelayed({ primeWebView?.evaluateJavascript("window.dispatchEvent(new Event('resize'))", null) }, 500)
             }
         }
     }
