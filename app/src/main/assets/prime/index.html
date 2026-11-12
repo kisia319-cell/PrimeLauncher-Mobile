@@ -234,7 +234,7 @@ body.battle-active #prime-runtime-error[data-error="true"]{display:block}</style
 </style>
 <script>
 window.primeReportError=function(message){const value=String(message||'неизвестная ошибка').slice(0,240);const box=document.getElementById('prime-runtime-error');if(box){box.dataset.error='true';box.textContent='ОШИБКА ЗАПУСКА АРЕНЫ: '+value;}const hud=document.getElementById('performance-hud');if(hud)hud.textContent='ОШИБКА: '+value.slice(0,90);};window.addEventListener('error',function(e){window.primeReportError(e.message||'ошибка JavaScript');});
-window.addEventListener('unhandledrejection',function(e){const h=document.getElementById('performance-hud');if(h)h.textContent='ОШИБКА ИГРЫ: '+String(e.reason?.message||e.reason||'неизвестная ошибка').slice(0,90);});
+window.addEventListener('unhandledrejection',function(e){window.primeReportError(e.reason?.stack||e.reason?.message||e.reason||'ошибка Promise');});
 </script>
 <script src="prime-world.js"></script>
 
