@@ -147,12 +147,23 @@ $('find-match').addEventListener('click',beginSearch);
 const languageSelect=$('prime-language');if(languageSelect){languageSelect.value=localStorage.getItem(PRIME_LANG_KEY)||'ru';languageSelect.addEventListener('change',()=>applyPrimeLanguage(languageSelect.value));}applyPrimeLanguage(localStorage.getItem(PRIME_LANG_KEY)||'ru');
 function resizeArenaCanvas(){
  const c=$('arena');if(!c)return;
- const rect=c.getBoundingClientRect(),dpr=Math.min(1.5,Math.max(1,window.devicePixelRatio||1));
+ const rect=c.getBoundingClientRect(),isAndroid=/Android/i.test(navigator.userAgent),dpr=isAndroid?1:Math.min(1.5,Math.max(1,window.devicePixelRatio||1));
  const width=Math.max(1,Math.round((rect.width||window.innerWidth)*dpr)),height=Math.max(1,Math.round((rect.height||window.innerHeight)*dpr));
  if(c.width!==width)c.width=width;if(c.height!==height)c.height=height;c.dataset.dpr=String(dpr);
  if(match&&scene==='battle')drawArena();
 }
 window.addEventListener('resize',resizeArenaCanvas,{passive:true});
+function forceArenaRedraw(){
+ if(scene!=='battle'||!match)return;
+ requestAnimationFrame(()=>{
+  try{resizeArenaCanvas();drawArena();if(!raf)startLoop();}
+  catch(error){window.primeReportError?.(error?.stack||error?.message||error);}
+ });
+}
+window.primeForceArenaRedraw=forceArenaRedraw;
+window.addEventListener('pageshow',forceArenaRedraw);
+window.addEventListener('focus',forceArenaRedraw);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)forceArenaRedraw();});
 function createTower(x,y,owner,isPlayer=false){
  const level=isPlayer?(match?.playerTowerLevel||1):owner.towerLevel,health=760+level*240;
  return {x,y,owner,isPlayer,isTower:true,team:isPlayer?0:(owner.team===0?0:1),displayName:isPlayer?'\u0421\u0442\u0440\u0430\u0436 \u0420\u0430\u0441\u0441\u0432\u0435\u0442\u0430':'\u0426\u0438\u0442\u0430\u0434\u0435\u043b\u044c '+(owner.name||'\u041a\u043e\u043c\u0430\u043d\u0434\u044b'),level,hp:health,maxHp:health,range:210+level*12,damage:8+level*3,fire:0,rotation:buildRotation||0};
@@ -758,7 +769,7 @@ function buildTerrainCache(seed){
  const scale=(/Android/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches)?0.5:1;
  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(SIZE*TILE*scale));c.height=Math.max(1,Math.round(SIZE*TILE*scale));
  c.dataset.worldScale=String(scale);
- const g=c.getContext('2d');if(!g)throw new Error('Не удалось создать 2D-холст карты');
+ const g=c.getContext('2d',{alpha:false});if(!g)throw new Error('Не удалось создать 2D-холст карты');
  g.setTransform(scale,0,0,scale,0,0);
  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
   const edge=Math.min(x,y,SIZE-1-x,SIZE-1-y),n=(x*17+y*31+(x*y)%23+seed)%9,hash=(x*73856093^y*19349663^seed)>>>0,sx=x*TILE,sy=y*TILE;
@@ -818,7 +829,7 @@ function drawSupportBuildings(ctx,camX,camY){
  }
 }
 function drawArena(){
- const c=$('arena');if(!c)return;const ctx=c.getContext('2d');if(!ctx){window.primeReportError?.('Canvas 2D недоступен');return;}
+ const c=$('arena');if(!c)return;const ctx=c.getContext('2d',{alpha:false,desynchronized:true});if(!ctx){window.primeReportError?.('Canvas 2D недоступен');return;}
  try{
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
