@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Allow USB Chrome DevTools to inspect the embedded WebView in debug builds.
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
         window.decorView.systemUiVisibility = (
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
