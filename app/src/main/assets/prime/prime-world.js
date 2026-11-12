@@ -898,11 +898,10 @@ function drawSupportBuildings(ctx,camX,camY){
 function drawArena(){
  primeDrawCount++;primeLastDrawAt=Date.now();primeLastDrawError='';
  const c=$('arena');if(!c)return;const ctx=c.getContext('2d',{alpha:false,desynchronized:true});if(!ctx){window.primeReportError?.('Canvas 2D недоступен');return;}
- try{
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
  const p=match.player,camX=p.x-w/2,camY=p.y-h/2;
- if(!match.terrainCanvas)match.terrainCanvas=buildTerrainCache(match.worldSeed);ctx.drawImage(match.terrainCanvas,camX,camY,w,h,0,0,w,h);drawPrimeWorldDecor(ctx,camX,camY,w,h);drawBattleObjectives(ctx,camX,camY);
+ if(!match.terrainCanvas)match.terrainCanvas=buildTerrainCache(match.worldSeed);const terrainScale=Number(match.terrainCanvas.dataset.worldScale)||1;ctx.drawImage(match.terrainCanvas,camX*terrainScale,camY*terrainScale,w*terrainScale,h*terrainScale,0,0,w,h);drawPrimeWorldDecor(ctx,camX,camY,w,h);drawBattleObjectives(ctx,camX,camY);
  const x0=Math.max(0,Math.floor(camX/TILE)),y0=Math.max(0,Math.floor(camY/TILE)),x1=Math.min(SIZE,Math.ceil((camX+w)/TILE)+1),y1=Math.min(SIZE,Math.ceil((camY+h)/TILE)+1);
  const waveTime=performance.now()/720;
  const base=match.playerBase;ctx.save();ctx.translate(base.x-camX,base.y-camY);ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,20,82,24,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#343d48';ctx.fillRect(-65,-22,130,48);ctx.fillStyle='#68798a';ctx.fillRect(-58,-30,116,12);ctx.fillStyle='#b4c4d3';for(let k=-2;k<=2;k++)ctx.fillRect(k*24-7,-39,14,10);ctx.fillStyle='#ff9a4d';ctx.fillRect(-8,-18,16,38);ctx.fillStyle='#f8d08a';ctx.fillRect(-3,-14,6,22);ctx.strokeStyle='#ffbf78';ctx.lineWidth=3;ctx.strokeRect(-65,-22,130,48);ctx.restore();
