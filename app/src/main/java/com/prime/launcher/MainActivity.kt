@@ -7,7 +7,9 @@ import android.webkit.JavascriptInterface
 import android.widget.Toast
 import android.content.Intent
 import androidx.core.content.FileProvider
-import androidx.appcompat.app.AlertDialog
+import android.app.AlertDialog
+import android.provider.Settings
+import android.net.Uri
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -154,6 +156,11 @@ class MainActivity : ComponentActivity() {
                 return@launch
             }
             try {
+                if (android.os.Build.VERSION.SDK_INT >= 26 && !packageManager.canRequestPackageInstalls()) {
+                    Toast.makeText(this@MainActivity, "Разреши установку обновлений для PrimeLauncher, затем повтори обновление", Toast.LENGTH_LONG).show()
+                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
+                    return@launch
+                }
                 val uri = FileProvider.getUriForFile(this@MainActivity, "$packageName.fileprovider", apk)
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, "application/vnd.android.package-archive")
