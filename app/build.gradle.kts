@@ -13,7 +13,10 @@ android {
         versionCode = providers.environmentVariable("GITHUB_RUN_NUMBER").orElse("1").get().toInt()
         versionName = "0.1.0"
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
