@@ -107,9 +107,20 @@ class MainActivity : ComponentActivity() {
             runOnUiThread {
                 requestedOrientation = if (active) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                     else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                window.decorView.postDelayed({ primeWebView?.evaluateJavascript("window.dispatchEvent(new Event('resize'))", null) }, 500)
+                window.decorView.postDelayed({ primeWebView?.evaluateJavascript("window.dispatchEvent(new Event('resize'));window.dispatchEvent(new Event('orientationchange'));window.primeForceArenaRedraw?.()", null) }, 500)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // A WebView canvas can retain a stale surface after Android resumes or changes orientation.
+        primeWebView?.postDelayed({
+            primeWebView?.evaluateJavascript(
+                "(function(){window.dispatchEvent(new Event('resize'));window.primeForceArenaRedraw?.();})();",
+                null
+            )
+        }, 300)
     }
 
     private fun checkForLauncherUpdate() {
