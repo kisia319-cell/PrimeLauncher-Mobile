@@ -139,6 +139,12 @@ body.battle-active .battle-tools{position:absolute!important;left:50%!important;
  body.battle-active .battle-tools {left:50%!important;right:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:min(46vw,520px)!important;max-width:46vw!important;transform:translateX(-50%)!important;padding:4px!important;gap:4px!important}
  body.battle-active .battle-tools .tool-btn {min-height:34px!important;padding:6px 8px!important;font-size:9px!important}
 }
+/* Stable Android arena viewport: avoid conflicting fixed/absolute 16:9 + dvh sizing rules. */
+body.battle-active #battle-page{position:fixed!important;inset:0!important;display:block!important;width:100vw!important;height:100vh!important;height:100dvh!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#050706!important;z-index:10!important}
+body.battle-active .battle{position:fixed!important;inset:0!important;display:block!important;width:100vw!important;height:100vh!important;height:100dvh!important;min-height:0!important;max-width:none!important;aspect-ratio:auto!important;margin:0!important;padding:0!important;overflow:hidden!important}
+body.battle-active .arena{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 42%,#28402a 0,#122016 72%,#08120e 100%)!important}
+body.battle-active .arena canvas#arena{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;filter:none!important;opacity:1!important;touch-action:none!important;z-index:1!important}
+body.battle-active #arena-minimap{z-index:13!important}
 #prime-runtime-error{display:none;position:fixed;z-index:100;left:10px;right:10px;top:60px;padding:10px 12px;border:1px solid #ff744f;background:#250d0b;color:#fff;border-radius:9px;font:12px/1.4 monospace;white-space:pre-wrap}
 body.battle-active #prime-runtime-error[data-error="true"]{display:block}</style></head>
 <body>
@@ -224,7 +230,7 @@ body.battle-active #prime-runtime-error[data-error="true"]{display:block}</style
 <style>
 /* Prime visual pass: material-rich, tactile arena and polished upgrade silhouettes. */
 .arena{background:radial-gradient(ellipse at 50% 42%,#28402a 0,#122016 72%,#08120e 100%)}
-#arena{filter:saturate(1.08) contrast(1.035)}
+#arena{filter:none!important}
 .hud-chip{backdrop-filter:blur(7px);box-shadow:0 4px 15px #0008,inset 0 1px #ffffff12}
 .battle-tools{backdrop-filter:blur(9px);border-color:#c68a5a66}
 .tool-btn{transition:transform .14s ease,border-color .14s ease,filter .14s ease}
