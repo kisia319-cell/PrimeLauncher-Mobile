@@ -126,7 +126,7 @@ const primeLanguageObserver=new MutationObserver(()=>{const lang=localStorage.ge
 function show(page){
  scene=page;document.body.classList.toggle('battle-active',page==='battle');pages.forEach(p=>$(p+'-page').classList.toggle('hidden',p!==page));
  document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
- if(page==='battle'){$('arena').focus();startLoop();}else stopLoop();if(page==='history')renderHistory();
+ if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){requestAnimationFrame(()=>{resizeArenaCanvas();$('arena').focus();startLoop();});}else stopLoop();if(page==='history')renderHistory();
 }
 document.querySelectorAll('.nav button[data-page]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));
 $('enter-prime').addEventListener('click',()=>show('menu'));
@@ -813,6 +813,7 @@ function drawSupportBuildings(ctx,camX,camY){
 }
 function drawArena(){
  const c=$('arena'),ctx=c.getContext('2d');if(!ctx)return;
+ try{
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
  const p=match.player,camX=p.x-w/2,camY=p.y-h/2;
@@ -872,6 +873,9 @@ function drawArena(){
  const vignette=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.25,w/2,h/2,Math.max(w,h)*.72);vignette.addColorStop(.65,'rgba(5,12,10,0)');vignette.addColorStop(1,'rgba(5,12,10,.22)');ctx.fillStyle=vignette;ctx.fillRect(0,0,w,h);
  drawMiniMap();
  // Arena title removed.
+ }catch(error){
+  try{ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#29452c';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('Не удалось отрисовать арену',c.width/2,Math.max(40,c.height/2));const hud=$('performance-hud');if(hud)hud.textContent='ОШИБКА ОТРИСОВКИ: '+String(error?.message||error).slice(0,80);}catch(_){}
+ }
 }
 function drawMiniMap(){
  const c=$('arena-minimap');if(!c||!match)return;
