@@ -12,6 +12,7 @@ try{const b=JSON.parse(localStorage.getItem(BOT_SAVE)||'null');if(Array.isArray(
 try{const w=JSON.parse(localStorage.getItem(WORLD_SAVE)||'null');if(w&&Number.isFinite(w.seed))worldMeta={...worldMeta,...w};}catch(_){}
 profile.history=Array.isArray(profile.history)?profile.history:[];
 let teamSize=1,matchKind='training',scene='home',match=null,raf=0,lastFrame=0,pressed=new Set(),attackCooldown=0,searchTimer=0,fpsFrames=0,fpsElapsed=0,currentFps=0,buildMode=null,buildRotation=0;
+let primeDrawCount=0,primeLastDrawAt=0,primeLastDrawError='';
 const pages=['home','rank','history','settings','menu','battle'];
 function save(){localStorage.setItem(SAVE,JSON.stringify({elo:profile.elo,botElo:profile.botElo||0,matches:profile.matches,wins:profile.wins,history:profile.history}));localStorage.setItem(BOT_SAVE,JSON.stringify(botsProfile));updateProfile();}
 function updateProfile(){
@@ -829,6 +830,7 @@ function drawSupportBuildings(ctx,camX,camY){
  }
 }
 function drawArena(){
+ primeDrawCount++;primeLastDrawAt=Date.now();primeLastDrawError='';
  const c=$('arena');if(!c)return;const ctx=c.getContext('2d',{alpha:false,desynchronized:true});if(!ctx){window.primeReportError?.('Canvas 2D недоступен');return;}
  try{
  const rect=c.getBoundingClientRect(),w=rect.width||window.innerWidth,h=rect.height||window.innerHeight,dpr=Number(c.dataset.dpr)||Math.min(1.5,window.devicePixelRatio||1);
@@ -896,6 +898,7 @@ function drawArena(){
  drawMiniMap();
  // Arena title removed.
  }catch(error){
+  primeLastDrawError=String(error?.stack||error?.message||error);
   window.primeReportError?.(error?.stack||error?.message||error);
   try{const rect=c.getBoundingClientRect();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#29452c';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText('Сбой графики: '+String(error?.message||error).slice(0,90),c.width/2,c.height/2);const hud=$('performance-hud');if(hud)hud.textContent='ОШИБКА ОТРИСОВКИ: '+String(error?.message||error).slice(0,80);if(window.primeReportError)window.primeReportError(error?.stack||error?.message||error);}catch(_){}
  }
@@ -980,4 +983,26 @@ $('train-unit').addEventListener('click',()=>{if(!match)return;const br=match.ba
 updateProfile();
 // Economy accrues outside battles.
 window.setInterval(()=>{if(match&&!match.finished){match.bots.forEach(b=>{b.elo=b.profile.elo;const row=$('bot-'+b.id);if(row)row.querySelector('span').textContent='Башня ур. '+b.profile.towerLevel+' · '+b.profile.coins+' ◆ · '+b.elo+' ELO';});updateHud();save();}},1000);
+
+window.__primeDiagnostics=()=>{
+ const c=$('arena'),a=$('battle-page'),ar=c?.parentElement;
+ const ctx=c?.getContext('2d');
+ const rect=c?.getBoundingClientRect();
+ const style=el=>{if(!el)return null;const s=getComputedStyle(el);return {display:s.display,visibility:s.visibility,opacity:s.opacity,position:s.position,zIndex:s.zIndex,width:s.width,height:s.height,filter:s.filter,transform:s.transform};};
+ const sample=(x,y)=>{try{const d=ctx.getImageData(Math.max(0,Math.min(c.width-1,x)),Math.max(0,Math.min(c.height-1,y)),1,1).data;return Array.from(d);}catch(e){return String(e.message||e);}};
+ const pixels=ctx&&c&&c.width&&c.height?{topLeft:sample(8,8),center:sample(Math.floor(c.width/2),Math.floor(c.height/2)),bottomRight:sample(c.width-8,c.height-8)}:null;
+ return {
+  scene,hasMatch:!!match,matchFinished:!!match?.finished,paused:!!match?.paused,raf:!!raf,
+  drawCount:primeDrawCount,lastDrawAt:primeLastDrawAt,lastDrawError:primeLastDrawError,
+  inner:{w:innerWidth,h:innerHeight,dpr:devicePixelRatio,orientation:screen.orientation?.type||''},
+  bodyClass:document.body.className,battlePage:style(a),arena:style(ar),canvas:style(c),
+  canvasRect:rect?{x:rect.x,y:rect.y,w:rect.width,h:rect.height}:null,
+  canvasBacking:c?{w:c.width,h:c.height,dpr:c.dataset.dpr}:null,
+  context:ctx?ctx.getContextAttributes?.():null,pixels,
+  terrain:match?.terrainCanvas?{w:match.terrainCanvas.width,h:match.terrainCanvas.height,scale:match.terrainCanvas.dataset.worldScale}:null,
+  player:match?.player?{x:match.player.x,y:match.player.y,hp:match.player.hp}:null,
+  userAgent:navigator.userAgent
+ };
+};
+
 })();
