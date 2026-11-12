@@ -130,9 +130,19 @@ body.battle-active .battle-tools{position:absolute!important;left:50%!important;
  body.battle-active #mobile-hint{bottom:calc((100dvh - min(100dvh,56.25vw))/2 + 65px)!important;font-size:8px}
 }
 </style>
-</head>
+<style>@media (max-width: 900px), (pointer: coarse) {
+ body.battle-active {touch-action:none;overscroll-behavior:none}
+ body.battle-active #mobile-stick {position:fixed!important;left:max(14px,env(safe-area-inset-left))!important;right:auto!important;bottom:max(14px,env(safe-area-inset-bottom))!important;width:clamp(88px,18vw,112px)!important;height:clamp(88px,18vw,112px)!important}
+ body.battle-active #mobile-actions {position:fixed!important;left:auto!important;right:max(14px,env(safe-area-inset-right))!important;bottom:max(14px,env(safe-area-inset-bottom))!important;grid-template-columns:repeat(2,clamp(48px,9vw,56px))!important;gap:7px!important}
+ body.battle-active .mobile-action {width:clamp(48px,9vw,56px)!important;height:clamp(48px,9vw,56px)!important}
+ body.battle-active #mobile-hint {bottom:calc(18px + env(safe-area-inset-bottom))!important}
+ body.battle-active .battle-tools {left:50%!important;right:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:min(46vw,520px)!important;max-width:46vw!important;transform:translateX(-50%)!important;padding:4px!important;gap:4px!important}
+ body.battle-active .battle-tools .tool-btn {min-height:34px!important;padding:6px 8px!important;font-size:9px!important}
+}
+#prime-runtime-error{display:none;position:fixed;z-index:100;left:10px;right:10px;top:60px;padding:10px 12px;border:1px solid #ff744f;background:#250d0b;color:#fff;border-radius:9px;font:12px/1.4 monospace;white-space:pre-wrap}
+body.battle-active #prime-runtime-error[data-error="true"]{display:block}</style></head>
 <body>
-<div class="shell">
+<div id="prime-runtime-error" aria-live="assertive"></div><div class="shell">
 <aside class="nav">
  <div class="brand"><div class="brand-mark">P</div><div><b>PRIME</b><small>COMPETITIVE</small></div></div>
  <button class="active" data-page="home" data-icon="⌂">⌂ <span>Главная</span></button>
@@ -223,7 +233,7 @@ body.battle-active .battle-tools{position:absolute!important;left:50%!important;
 @media(prefers-reduced-motion:reduce){.tool-btn{transition:none}}
 </style>
 <script>
-window.addEventListener('error',function(e){const h=document.getElementById('performance-hud');if(h)h.textContent='ОШИБКА ИГРЫ: '+String(e.message||'неизвестная ошибка').slice(0,90);});
+window.primeReportError=function(message){const value=String(message||'неизвестная ошибка').slice(0,240);const box=document.getElementById('prime-runtime-error');if(box){box.dataset.error='true';box.textContent='ОШИБКА ЗАПУСКА АРЕНЫ: '+value;}const hud=document.getElementById('performance-hud');if(hud)hud.textContent='ОШИБКА: '+value.slice(0,90);};window.addEventListener('error',function(e){window.primeReportError(e.message||'ошибка JavaScript');});
 window.addEventListener('unhandledrejection',function(e){const h=document.getElementById('performance-hud');if(h)h.textContent='ОШИБКА ИГРЫ: '+String(e.reason?.message||e.reason||'неизвестная ошибка').slice(0,90);});
 </script>
 <script src="prime-world.js"></script>
