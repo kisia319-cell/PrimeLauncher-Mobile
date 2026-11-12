@@ -148,7 +148,7 @@ $('find-match').addEventListener('click',beginSearch);
 const languageSelect=$('prime-language');if(languageSelect){languageSelect.value=localStorage.getItem(PRIME_LANG_KEY)||'ru';languageSelect.addEventListener('change',()=>applyPrimeLanguage(languageSelect.value));}applyPrimeLanguage(localStorage.getItem(PRIME_LANG_KEY)||'ru');
 function resizeArenaCanvas(){
  const c=$('arena');if(!c)return;
- const rect=c.getBoundingClientRect(),isAndroid=/Android/i.test(navigator.userAgent),dpr=isAndroid?1:Math.min(1.5,Math.max(1,window.devicePixelRatio||1));
+ const rect=c.getBoundingClientRect(),isAndroid=/Android/i.test(navigator.userAgent),dpr=isAndroid?Math.min(2,Math.max(1.5,window.devicePixelRatio||1)):Math.min(1.5,Math.max(1,window.devicePixelRatio||1));
  const width=Math.max(1,Math.round((rect.width||window.innerWidth)*dpr)),height=Math.max(1,Math.round((rect.height||window.innerHeight)*dpr));
  if(c.width!==width)c.width=width;if(c.height!==height)c.height=height;c.dataset.dpr=String(dpr);
  if(match&&scene==='battle')drawArena();
