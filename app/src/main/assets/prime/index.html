@@ -80,8 +80,16 @@ body.prime-building #arena{cursor:crosshair}
  .battle-active .nav,.battle-active .top{display:none!important}
  .battle-active .main{padding:0!important}
  .battle-active .shell{padding:0!important}
- .battle-active #battle-page,.battle-active .battle,.battle-active .arena{width:100vw!important;height:100dvh!important;min-height:100dvh!important}
- .battle-active .arena canvas{width:100vw!important;height:100dvh!important;touch-action:none}
+ /* Keep the playable viewport exactly 16:9 on phones with ultrawide screens. */
+ body.battle-active #battle-page{position:fixed!important;inset:0!important;display:grid!important;place-items:center!important;background:#050706!important}
+ body.battle-active .battle{position:relative!important;width:min(100vw,177.7778dvh)!important;height:min(100dvh,56.25vw)!important;min-height:0!important;aspect-ratio:16/9!important;margin:auto!important;overflow:hidden!important}
+ body.battle-active .arena{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+ body.battle-active .arena canvas#arena{width:100%!important;height:100%!important;touch-action:none}
+ body.battle-active .battle-tools{position:absolute!important;left:50%!important;right:auto!important;bottom:5px!important;transform:translateX(-50%)!important;width:calc(100% - 12px)!important;max-width:none!important}
+ body.battle-active #mobile-stick{left:14px;bottom:88px;width:96px;height:96px}
+ body.battle-active #mobile-actions{right:12px;bottom:88px;grid-template-columns:repeat(2,52px);gap:7px}
+ body.battle-active .mobile-action{width:52px;height:52px;border-radius:15px}
+ body.battle-active #mobile-hint{bottom:70px;font-size:8px}
  .battle-hud{top:calc(5px + env(safe-area-inset-top));left:5px;right:5px;gap:4px}
  .hud-chip{font-size:9px;padding:5px 6px;max-width:31vw}
  #hud-balance-center{top:50px!important;font-size:11px!important;padding:6px 10px!important}
@@ -200,6 +208,10 @@ body.battle-active #mobile-controls{display:block}
 .build-panel,.battle-panel{backdrop-filter:blur(12px)}
 @media(prefers-reduced-motion:reduce){.tool-btn{transition:none}}
 </style>
+<script>
+window.addEventListener('error',function(e){const h=document.getElementById('performance-hud');if(h)h.textContent='ОШИБКА ИГРЫ: '+String(e.message||'неизвестная ошибка').slice(0,90);});
+window.addEventListener('unhandledrejection',function(e){const h=document.getElementById('performance-hud');if(h)h.textContent='ОШИБКА ИГРЫ: '+String(e.reason?.message||e.reason||'неизвестная ошибка').slice(0,90);});
+</script>
 <script src="prime-world.js"></script>
 
 <div id="mobile-controls" aria-label="Сенсорное управление Prime">
