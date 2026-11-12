@@ -110,21 +110,23 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             val release = withContext(Dispatchers.IO) {
                 try {
-                    val connection = (URL("https://api.github.com/repos/kisia319-cell/PrimeLauncher-Mobile/releases/latest").openConnection() as HttpURLConnection)
+                    val connection = (URL("https://api.github.com/repos/kisia319-cell/PrimeLauncher-Mobile/releases?per_page=100").openConnection() as HttpURLConnection)
                     connection.connectTimeout = 7000
                     connection.readTimeout = 7000
                     connection.setRequestProperty("Accept", "application/vnd.github+json")
-                    val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                    val releases = org.json.JSONArray(connection.inputStream.bufferedReader().use { it.readText() })
                     connection.disconnect()
-                    val tag = json.optString("tag_name")
-                    val remoteCode = tag.removePrefix("mobile-").toIntOrNull() ?: 0
-                    val asset = json.optJSONArray("assets")?.let { list ->
-                        (0 until list.length()).map { list.getJSONObject(it) }
-                            .firstOrNull { it.optString("name") == "PrimeLauncher-Mobile.apk" }
-                    }
-                    if (remoteCode > BuildConfig.VERSION_CODE && asset != null)
-                        Pair(asset.optString("browser_download_url"), tag)
-                    else null
+                    (0 until releases.length()).map { releases.getJSONObject(it) }
+                        .mapNotNull { release ->
+                            val tag = release.optString("tag_name")
+                            val code = tag.removePrefix("mobile-").toIntOrNull() ?: 0
+                            val asset = release.optJSONArray("assets")?.let { list ->
+                                (0 until list.length()).map { list.getJSONObject(it) }
+                                    .firstOrNull { it.optString("name") == "PrimeLauncher-Mobile.apk" }
+                            }
+                            if (code > BuildConfig.VERSION_CODE && asset != null)
+                                Triple(code, asset.optString("browser_download_url"), tag) else null
+                        }.maxByOrNull { it.first }?.let { Pair(it.second, it.third) }
                 } catch (_: Exception) { null }
             }
             if (release != null && !isFinishing) {
