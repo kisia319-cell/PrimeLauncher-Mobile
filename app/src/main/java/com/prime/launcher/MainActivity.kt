@@ -35,8 +35,8 @@ class MainActivity : ComponentActivity() {
             .build()
 
         setContent {
-            BackHandler(enabled = primeWebView?.canGoBack() == true) {
-                primeWebView?.goBack()
+            BackHandler {
+                if (primeWebView?.canGoBack() == true) primeWebView?.goBack() else finish()
             }
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
