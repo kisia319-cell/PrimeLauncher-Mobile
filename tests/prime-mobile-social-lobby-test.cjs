@@ -5,3 +5,8 @@ for(const id of ["friends-page","prime-friend-search","prime-friend-find","prime
 for(const method of ["friends","searchPlayers","addFriend","respondFriend","lobby","createLobby","inviteLobbyFriend","respondLobbyInvite","startLobby","leaveLobby"])assert.ok(online.includes(method+":"),"Missing Android Prime client method: "+method);
 assert.ok(html.includes("Играть против ботов")&&world.includes("НАЧАТЬ ДУЭЛЬ 1 × 1"),"Android must expose both bot and friend-duel flows");
 console.log("Android Prime social/lobby integration: all assertions passed");
+assert.match(html,/id="registration-page"/,'Mobile Prime must include a dedicated registration page');
+assert.match(html,/У вас есть аккаунт SkyRealm\?/,'Mobile registration must ask whether the player already has an account');
+assert.match(world,/prime-account-yes/,'Existing-account choice must open sign-in');
+assert.match(world,/prime-account-no/,'New-account choice must open registration');
+assert.match(world,/prime-registration-tab/,'Registration tab must be synchronized with authentication state');
