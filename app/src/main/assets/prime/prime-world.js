@@ -13,7 +13,7 @@ try{const w=JSON.parse(localStorage.getItem(WORLD_SAVE)||'null');if(w&&Number.is
 profile.history=Array.isArray(profile.history)?profile.history:[];
 let teamSize=1,matchKind='training',scene='home',match=null,raf=0,lastFrame=0,pressed=new Set(),attackCooldown=0,searchTimer=0,fpsFrames=0,fpsElapsed=0,currentFps=0,buildMode=null,buildRotation=0;
 let primeDrawCount=0,primeLastDrawAt=0,primeLastDrawError='';
-const pages=['home','rank','history','settings','menu','battle'];
+const pages=['home','rank','history','profile','settings','menu','battle'];
 function save(){localStorage.setItem(SAVE,JSON.stringify({elo:profile.elo,botElo:profile.botElo||0,matches:profile.matches,wins:profile.wins,history:profile.history}));localStorage.setItem(BOT_SAVE,JSON.stringify(botsProfile));updateProfile();}
 function updateProfile(){
  const coins=match?Math.floor(match.playerCoins):0;
@@ -27,9 +27,74 @@ function updateProfile(){
 }
 function renderLeaderboard(){
  const root=$('leaderboard');if(!root)return;
- const rows=[{name:'Вы',elo:profile.elo,isPlayer:true}];
- root.innerHTML=rows.map((b,i)=>'<div class="bot" style="display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:12px"><b>#'+(i+1)+'</b><span><b>'+b.name+' · ВЫ</b><br><small>Личный рейтинг</small></span><strong>'+b.elo+' ELO</strong></div>').join('');
+ root.innerHTML='<div class="bot">Загрузка онлайн-рейтинга...</div>';
+ PrimeOnline.init().then(async ok=>{
+  if(!ok){root.innerHTML='<div class="bot">Чтобы попасть в общий топ, войди или зарегистрируй аккаунт SkyRealm. <button class="tool-btn" id="prime-open-auth">Войти / регистрация</button></div>';setTimeout(()=>$('prime-open-auth')?.addEventListener('click',openPrimeAuth),0);return;}
+  const [stats,data]=await Promise.all([PrimeOnline.stats(),PrimeOnline.leaderboard()]);
+  profile.elo=Number(stats.stats?.rating)||profile.elo||1000;profile.matches=Number(stats.stats?.matches)||profile.matches||0;profile.wins=Number(stats.stats?.wins)||profile.wins||0;
+  $('home-elo').textContent=profile.elo+' ELO';$('rank-elo').textContent=profile.elo+' ELO';$('nav-elo').textContent=profile.elo;$('battle-elo').textContent=profile.elo+' ELO';$('home-matches').textContent=profile.matches+' матчей';$('home-wins').textContent=profile.wins;
+  const rows=data.players||[];
+  root.innerHTML=rows.length?rows.map((b,i)=>{const icons={default:'⚔',guardian:'🛡',ranger:'🏹',mage:'🔮'},name=String(b.username||'Игрок').replace(/[&<>"']/g,''),cls=String(b.player_class||'Воин').replace(/[&<>"']/g,'');return '<div class="bot" style="display:grid;grid-template-columns:34px 42px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px"><b>#'+(i+1)+'</b><span style="width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#3a2115;border:1px solid #a65d35;font-size:20px">'+(icons[b.avatar_key||'default']||'⚔')+'</span><span><b>'+name+'</b><br><small>'+cls+' · '+(b.wins||0)+' побед · '+(b.losses||0)+' поражений · '+(b.matches||0)+' матчей · '+(Math.max(0,Number(b.playtime_seconds)||0)/3600).toFixed(1)+' ч · '+(b.presence_status==='online'?'● В сети':'○ Не в сети')+'</small></span><strong>'+b.rating+' ELO</strong></div>';}).join(''):'<div class="bot">Онлайн-рейтинг пока пуст. Сыграй первый матч 1 × 1.</div>';
+ }).catch(e=>{root.innerHTML='<div class="bot">Не удалось загрузить рейтинг: '+String(e.message).replace(/[&<>"']/g,'')+'</div>';});
 }
+async function renderPrimeProfile(){
+ const msg=$('prime-profile-message');if(msg)msg.textContent='Загрузка профиля...';
+ try{
+  const ok=await PrimeOnline.init();if(!ok){if(msg)msg.textContent='Аккаунт не найден. Открой главный лаунчер SkyRealm и выбери «Создать аккаунт» — регистрация и подтверждение почты доступны там.';return;}
+  const data=await PrimeOnline.profile(),p=data.profile||{},st=data.stats||{};
+  const name=p.display_name||p.username||'Игрок';
+  $('prime-profile-name').textContent=name;$('prime-profile-class').textContent=p.player_class||'Воин';
+  $('prime-profile-elo').textContent=(st.rating??1000)+' ELO';
+  $('prime-profile-hours').textContent=(Math.max(0,Number(p.playtime_seconds)||0)/3600).toFixed(1)+' ч';
+  $('prime-profile-record').textContent=(st.matches||0)+' · '+(st.wins||0);
+  $('prime-profile-last').textContent=data.last_match?(data.last_match.status==='completed'?'Завершён':'Не завершён')+' · '+new Date(data.last_match.finished_at||data.last_match.created_at).toLocaleDateString('ru-RU'):'Нет матчей';
+  $('prime-profile-status').textContent=p.presence_status==='online'?'● В сети':'Не в сети';
+  $('prime-name-edit').value=name;$('prime-class-edit').value=p.player_class||'Воин';$('prime-avatar-edit').value=p.avatar_key||'default';
+  const icons={default:'⚔',guardian:'🛡',ranger:'🏹',mage:'🔮'};const avatar=$('prime-avatar');if(p.avatar_url&&/^https:\/\//i.test(p.avatar_url)){avatar.innerHTML='<img src="'+p.avatar_url.replace(/[&<>\"']/g,'')+'" alt="Аватар" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}else avatar.textContent=icons[p.avatar_key||'default']||'⚔';
+  $('nav-elo').textContent=st.rating??1000;
+  if(msg)msg.textContent='Профиль синхронизирован с сервером SkyRealm. Изменения видны другим игрокам.';
+ }catch(e){if(msg)msg.textContent='Не удалось загрузить профиль: '+String(e.message);}
+}
+$('prime-profile-save')?.addEventListener('click',async()=>{
+ const msg=$('prime-profile-message');msg.textContent='Сохраняем...';
+ try{await PrimeOnline.updateProfile({display_name:$('prime-name-edit').value,player_class:$('prime-class-edit').value,avatar_key:$('prime-avatar-edit').value});await renderPrimeProfile();renderLeaderboard();}
+ catch(e){msg.textContent=e.message;}
+});
+function renderHistory(){const root=$('history-list');if(!root)return;if(!profile.history.length){root.textContent='Матчей пока нет.';return;}root.innerHTML=profile.history.map((h,i)=>'<div class="bot" style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;margin:8px 0"><span><b>'+(h.label||'Матч')+'</b><br><small>'+String(h.date||'')+'</small><br><small>Соперники: '+(Array.isArray(h.opponents)?h.opponents.join(', '):'—')+'</small></span><strong>'+String(h.delta||'')+'</strong></div>').join('');}
+
+let primeAuthMode='login',primeAuthStage='form',primeAuthEmail='';
+function openPrimeAuth(){ $('prime-auth-overlay')?.classList.remove('hidden'); }
+$('prime-auth-close')?.addEventListener('click',()=>$('prime-auth-overlay').classList.add('hidden'));
+$('prime-auth-switch')?.addEventListener('click',()=>{
+ primeAuthMode=primeAuthMode==='login'?'register':'login';primeAuthStage='form';
+ $('prime-auth-title').textContent=primeAuthMode==='login'?'Вход в SkyRealm':'Регистрация SkyRealm';
+ $('prime-auth-submit').textContent=primeAuthMode==='login'?'Войти':'Создать аккаунт';
+ $('prime-auth-switch').textContent=primeAuthMode==='login'?'Создать аккаунт':'Уже есть аккаунт? Войти';
+ $('prime-auth-name').classList.toggle('hidden',primeAuthMode==='login');
+ $('prime-auth-hint').textContent=primeAuthMode==='login'?'Введи ник или почту и пароль.':'Создай аккаунт. На почту придёт код подтверждения.';
+ $('prime-auth-message').textContent='';
+});
+$('prime-auth-submit')?.addEventListener('click',async()=>{
+ const msg=$('prime-auth-message'),btn=$('prime-auth-submit');btn.disabled=true;msg.textContent='Подключение...';
+ try{
+  if(primeAuthStage==='verify'){
+   await PrimeOnline.verify(primeAuthEmail,$('prime-auth-code').value);
+   primeAuthStage='form';$('prime-auth-overlay').classList.add('hidden');msg.textContent='';
+   await PrimeOnline.profile();renderLeaderboard();if(scene==='profile')renderPrimeProfile();
+   return;
+  }
+  const email=$('prime-auth-email').value.trim(),password=$('prime-auth-password').value;
+  if(primeAuthMode==='register'){
+   const name=$('prime-auth-name').value.trim();await PrimeOnline.register(name,email,password);primeAuthEmail=email;primeAuthStage='verify';
+   $('prime-auth-code-wrap').classList.remove('hidden');$('prime-auth-title').textContent='Подтверждение почты';$('prime-auth-hint').textContent='Введи код из письма, чтобы активировать аккаунт.';$('prime-auth-submit').textContent='Подтвердить почту';msg.textContent='Код отправлен на '+email+'. Проверь входящие и спам.';
+  }else{
+   await PrimeOnline.login(email||$('prime-auth-name').value.trim(),password);
+   $('prime-auth-overlay').classList.add('hidden');await PrimeOnline.profile();renderLeaderboard();if(scene==='profile')renderPrimeProfile();msg.textContent='';
+  }
+ }catch(e){msg.textContent=e.message;}finally{btn.disabled=false;}
+});
+$('prime-auth-name')?.classList.add('hidden');
+setInterval(()=>{if(PrimeOnline.hasSession())PrimeOnline.profile().catch(()=>{});},60000);
 function renderHistory(){const root=$('history-list');if(!root)return;if(!profile.history.length){root.textContent='Матчей пока нет.';return;}root.innerHTML=profile.history.map((h,i)=>'<div class="bot" style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;margin:8px 0"><span><b>'+(h.label||'Матч')+'</b><br><small>'+String(h.date||'')+'</small><br><small>Соперники: '+(Array.isArray(h.opponents)?h.opponents.join(', '):'—')+'</small></span><strong>'+String(h.delta||'')+'</strong></div>').join('');}
 
 const PRIME_LANG_KEY='primeLauncher.language.v1';
@@ -127,7 +192,7 @@ const primeLanguageObserver=new MutationObserver(()=>{const lang=localStorage.ge
 function show(page){
  scene=page;document.body.classList.toggle('battle-active',page==='battle');pages.forEach(p=>$(p+'-page').classList.toggle('hidden',p!==page));
  document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
- if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){const redraw=()=>{if(scene!=='battle')return;resizeArenaCanvas();if(match)drawArena();};requestAnimationFrame(()=>{redraw();$('arena').focus();startLoop();});setTimeout(redraw,250);setTimeout(redraw,700);setTimeout(redraw,1400);}else stopLoop();if(page==='history')renderHistory();
+ if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){const redraw=()=>{if(scene!=='battle')return;resizeArenaCanvas();if(match)drawArena();};requestAnimationFrame(()=>{redraw();$('arena').focus();startLoop();});setTimeout(redraw,250);setTimeout(redraw,700);setTimeout(redraw,1400);}else stopLoop();if(page==='history')renderHistory();if(page==='profile')renderPrimeProfile();
 }
 document.querySelectorAll('.nav button[data-page]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));
 $('enter-prime').addEventListener('click',()=>show('menu'));
