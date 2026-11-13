@@ -96,6 +96,7 @@ function syncPrimeRegistrationTab(){
   const signed=!!ok&&PrimeOnline.hasSession();
   tab.classList.toggle('hidden',signed);
   if(signed&&scene==='registration')show('home');
+  if(!signed&&scene==='registration')$('prime-account-yes')?.focus?.();
  }).catch(()=>tab.classList.remove('hidden'));
 }
 function completePrimeAuth(){
