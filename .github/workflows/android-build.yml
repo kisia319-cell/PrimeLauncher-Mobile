@@ -50,6 +50,9 @@ jobs:
       - name: Validate packaged Prime gameplay JavaScript
         run: |
           node --check app/src/main/assets/prime/prime-world.js
+          node --check app/src/main/assets/prime/prime-online.js
+          node --check tests/prime-mobile-social-lobby-test.cjs
+          node tests/prime-mobile-social-lobby-test.cjs
           node tests/prime-mobile-battle-systems-test.cjs
       - name: Build debug APK with the persistent Prime signing key
         env:
