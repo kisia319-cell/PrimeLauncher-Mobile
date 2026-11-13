@@ -10,3 +10,11 @@ assert.match(html,/У вас есть аккаунт SkyRealm\?/,'Mobile registr
 assert.match(world,/prime-account-yes/,'Existing-account choice must open sign-in');
 assert.match(world,/prime-account-no/,'New-account choice must open registration');
 assert.match(world,/prime-registration-tab/,'Registration tab must be synchronized with authentication state');
+
+for(const hook of ["beginOnlineQueue","startOnlineMatch","PrimeGameSnapshot","PrimeApplyRemoteInput","PrimeReadInput","PrimeApplyHostState","PrimeOnlineFinished"])assert.ok(world.includes(hook),"Missing Android online match integration: "+hook);
+assert.ok(world.includes("bot.isRemotePlayer&&match.online?.role==='host'"),"Android host must simulate remote opponent input");
+assert.ok(world.includes("if(match.online?.role==='guest'){drawArena();}else{update(dt);"),"Android guest must apply host-authoritative match state");
+assert.ok(world.includes("match.online?.role==='guest'){match.online.attackPulse=true"),"Android guest attack input must be sent to host");
+assert.ok(html.includes("mobile-stick")&&html.includes("mobile-attack"),"Android touch controls must remain available in online matches");
+assert.ok(world.includes("stats.stats?.rating??0")&&world.includes("st.rating??0"),"Android starting ELO must be zero");
+console.log("Android Prime cross-platform online + zero-ELO assertions passed");
