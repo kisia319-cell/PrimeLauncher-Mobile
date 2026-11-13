@@ -945,6 +945,7 @@ function update(dt){
 }
 function attack(){
  if(!match||match.finished||attackCooldown>0)return;
+ if(match.online?.role==='guest'){match.online.attackPulse=true;attackCooldown=.42;return;}
  attackCooldown=.42;
  const player=match.player,opponents=[...match.bots.filter(bot=>bot.alive),...match.units.filter(unit=>unit.team===1&&unit.alive)];
  const found=chooseNearestTarget(player,opponents,112);
