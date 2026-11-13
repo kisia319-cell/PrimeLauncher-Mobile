@@ -40,7 +40,7 @@ function renderLeaderboard(){
 async function renderPrimeProfile(){
  const msg=$('prime-profile-message');if(msg)msg.textContent='Загрузка профиля...';
  try{
-  const ok=await PrimeOnline.init();if(!ok){if(msg)msg.textContent='Аккаунт не найден. Открой главный лаунчер SkyRealm и выбери «Создать аккаунт» — регистрация и подтверждение почты доступны там.';return;}
+  const ok=await PrimeOnline.init();if(!ok){const gate=$('prime-profile-auth-area');if(gate)gate.classList.remove('hidden');if(msg)msg.textContent='Войди или зарегистрируй аккаунт PrimeLauncher. Используй ту же почту и пароль, что на ПК, чтобы оба устройства отображались как один игрок.';return;}const gate=$('prime-profile-auth-area');if(gate)gate.classList.add('hidden');
   const data=await PrimeOnline.profile(),p=data.profile||{},st=data.stats||{};
   const name=p.display_name||p.username||'Игрок';
   $('prime-profile-name').textContent=name;$('prime-profile-class').textContent=p.player_class||'Воин';
@@ -55,6 +55,7 @@ async function renderPrimeProfile(){
   if(msg)msg.textContent='Профиль синхронизирован с сервером SkyRealm. Изменения видны другим игрокам.';
  }catch(e){if(msg)msg.textContent='Не удалось загрузить профиль: '+String(e.message);}
 }
+$('prime-profile-auth-button')?.addEventListener('click',openPrimeAuth);
 $('prime-profile-save')?.addEventListener('click',async()=>{
  const msg=$('prime-profile-message');msg.textContent='Сохраняем...';
  try{await PrimeOnline.updateProfile({display_name:$('prime-name-edit').value,player_class:$('prime-class-edit').value,avatar_key:$('prime-avatar-edit').value});await renderPrimeProfile();renderLeaderboard();}
