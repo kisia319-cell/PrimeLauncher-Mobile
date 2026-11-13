@@ -43,6 +43,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Set up Node.js for Prime gameplay validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate packaged Prime gameplay JavaScript
+        run: |
+          node --check app/src/main/assets/prime/prime-world.js
+          node tests/prime-mobile-battle-systems-test.cjs
       - name: Build debug APK with the persistent Prime signing key
         env:
           PRIME_SIGNING_KEY: ${{ runner.temp }}/prime-mobile-signing.jks
