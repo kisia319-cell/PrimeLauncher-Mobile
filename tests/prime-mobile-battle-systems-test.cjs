@@ -44,3 +44,9 @@ console.log('Prime battle systems: all tests passed.');
 assert.ok(js.includes("const p=match.localEntity||match.player,camX=p.x-w/2,camY=p.y-h/2"),"Guest camera must follow its own fighter");
 assert.ok(js.includes("const localMapPlayer=match.localEntity||match.player"),"Guest minimap marker must follow its own fighter");
 console.log("Prime guest-local camera regression assertions passed");
+
+const primeWorldSource=fs.readFileSync("app/src/main/assets/prime/prime-world.js",'utf8');
+const profileUpdater=primeWorldSource.slice(primeWorldSource.indexOf('function updateProfile(){'),primeWorldSource.indexOf('let primeLeaderboardPromise='));
+assert.ok(!profileUpdater.includes('renderLeaderboard()'),'Leaderboard must not refetch on every profile refresh');
+assert.ok(primeWorldSource.includes("if(page==='rank')renderLeaderboard();"),'Leaderboard should load when the ranking page is opened');
+assert.ok(primeWorldSource.includes('primeLeaderboardPromise'),'Leaderboard requests must be deduplicated');
