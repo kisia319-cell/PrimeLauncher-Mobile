@@ -215,7 +215,7 @@ body.prime-ui-layout-edit #arena-minimap,body.prime-ui-layout-edit .battle-tools
  <button data-page="friends" data-icon="♟">♟ <span>Друзья / лобби</span></button>
  <button data-page="registration" data-icon="＋" id="prime-registration-tab" aria-label="Регистрация и вход">＋ <span>Регистрация</span></button>
  <button data-page="settings" data-icon="⚙">⚙ <span>Настройки</span></button>
- <div class="nav-bottom"></div><div class="profile">Профиль игрока<br><b>Kisia</b> · <span id="nav-elo">0</span> ELO<br><span style="color:#ff9b62">◆ <span id="nav-coins">0</span> монет</span></div>
+ <div class="nav-bottom"></div><div class="profile">Профиль игрока<br><b id="prime-nav-display-name">Игрок</b> · <span id="nav-elo">0</span> ELO<br><span style="color:#ff9b62">◆ <span id="nav-coins">0</span> монет</span></div>
 </aside>
 <main class="main">
  <div class="top"><div><div class="eyebrow">SKYREALM · PRIME DIVISION</div><div style="font-size:12px;color:#999;margin-top:5px">Соревновательная платформа</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><div class="season">БАЛАНС · <b id="top-coins">0 ◆</b></div><div class="season">СЕЗОН 01 · ЛОКАЛЬНЫЙ РЕЖИМ</div></div></div>
@@ -381,7 +381,8 @@ window.addEventListener('unhandledrejection',function(e){window.primeReportError
  const stop=e=>{if(pointer===e.pointerId){pointer=null;release()}};
  stick.addEventListener('pointerup',stop);stick.addEventListener('pointercancel',stop);window.addEventListener('blur',release);
  function bindHold(id,code){const b=document.getElementById(id);if(!b)return;b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('active');key(code,true)});const end=e=>{e.preventDefault();b.classList.remove('active');key(code,false)};b.addEventListener('pointerup',end);b.addEventListener('pointercancel',end);b.addEventListener('pointerleave',end);}
- bindHold('mobile-attack','Space');bindHold('mobile-sprint','ShiftLeft');
+ function bindAttack(id){const b=document.getElementById(id);if(!b)return;let activePointer=null;b.addEventListener('pointerdown',e=>{if(activePointer!==null)return;e.preventDefault();activePointer=e.pointerId;try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('active');window.PrimeMobileAttack?.();});const end=e=>{if(activePointer!==e.pointerId)return;e.preventDefault();activePointer=null;b.classList.remove('active');};b.addEventListener('pointerup',end);b.addEventListener('pointercancel',end);}
+ bindAttack('mobile-attack');bindHold('mobile-sprint','ShiftLeft');
  document.getElementById('mobile-build')?.addEventListener('click',()=>document.getElementById('build-toggle')?.click());
  document.getElementById('mobile-pause')?.addEventListener('click',()=>key('Escape',true));
  document.getElementById('mobile-pause')?.addEventListener('click',()=>key('Escape',false));
