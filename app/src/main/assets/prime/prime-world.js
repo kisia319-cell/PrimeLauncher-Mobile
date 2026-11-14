@@ -29,7 +29,7 @@ try{const w=JSON.parse(localStorage.getItem(WORLD_SAVE)||'null');if(w&&Number.is
 profile.history=Array.isArray(profile.history)?profile.history:[];
 let teamSize=1,matchKind='training',scene='home',match=null,raf=0,lastFrame=0,pressed=new Set(),attackCooldown=0,searchTimer=0,fpsFrames=0,fpsElapsed=0,currentFps=0,buildMode=null,buildRotation=0;
 let primeDrawCount=0,primeLastDrawAt=0,primeLastDrawError='';
-const pages=['home','rank','history','profile','registration','settings','menu','battle'];
+const pages=['home','rank','history','profile','friends','registration','settings','menu','battle'];
 function save(){localStorage.setItem(SAVE,JSON.stringify({elo:profile.elo,botElo:profile.botElo||0,matches:profile.matches,wins:profile.wins,history:profile.history}));localStorage.setItem(BOT_SAVE,JSON.stringify(botsProfile));updateProfile();}
 function updateProfile(){
  const coins=match?Math.floor(match.playerCoins):0;
@@ -227,7 +227,7 @@ function applyPrimeLanguage(lang){
 
 const primeLanguageObserver=new MutationObserver(()=>{const lang=localStorage.getItem(PRIME_LANG_KEY)||'ru';if(lang==='en')applyPrimeLanguage(lang);});primeLanguageObserver.observe(document.body,{subtree:true,childList:true,characterData:true});
 function show(page){
- scene=page;document.body.classList.toggle('battle-active',page==='battle');pages.forEach(p=>$(p+'-page').classList.toggle('hidden',p!==page));
+ scene=page;document.body.classList.toggle('battle-active',page==='battle');pages.forEach(p=>{const node=$(p+'-page');if(node)node.classList.toggle('hidden',p!==page);});
  document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
  if(window.AndroidPrime){try{window.AndroidPrime.setBattleMode(page==='battle');}catch(_){}}if(page==='battle'){const redraw=()=>{if(scene!=='battle')return;resizeArenaCanvas();if(match)drawArena();};requestAnimationFrame(()=>{redraw();$('arena').focus();startLoop();});setTimeout(redraw,250);setTimeout(redraw,700);setTimeout(redraw,1400);}else stopLoop();if(page==='history')renderHistory();if(page==='profile')renderPrimeProfile();if(page==='friends')renderPrimeFriends();if(page==='friends'){if(!primeSocialRefreshTimer)primeSocialRefreshTimer=setInterval(renderPrimeFriends,5000);}else if(primeSocialRefreshTimer){clearInterval(primeSocialRefreshTimer);primeSocialRefreshTimer=0;}
 }
