@@ -52,3 +52,10 @@ assert.ok(world.includes("selfName:window.PrimeCurrentDisplayName||'Игрок'"
 assert.ok(world.includes("match.online?.selfName||window.PrimeCurrentDisplayName||'Игрок'"),'Android fighter must use authenticated name');
 assert.ok(world.includes("window.PrimeCurrentDisplayName=String(p.display_name||p.username||'Игрок')"),'Android matchmaking must resolve own profile name');
 assert.ok(html.includes('id="prime-nav-display-name"'),'Android navigation must not hardcode Kisia');
+
+assert.ok(world.includes('window.PrimeMobileAttack=()=>{if(scene===\'battle\')attack();}'),'Android attack button must invoke the game attack action directly');
+assert.ok(world.includes('window.PrimeInputSent')&&!world.includes('match.online.attackPulse=false;return v;'),'Android attack pulses must remain latched until successfully sent');
+assert.ok(html.includes('id=\"prime-nav-display-name\"')&&!world.includes("isPlayer?'Kisia'"),'Android player label must use the authenticated profile instead of a hardcoded Kisia');
+assert.ok(html.includes("bindAttack('mobile-attack')"),'Android touch attack button must use the dedicated direct-action handler');
+assert.ok(world.includes('cfg.selfName||match.localEntity?.name'),'Android online HUD must display the local authenticated player name');
+console.log('Android touch attack and account-name regression assertions passed');
