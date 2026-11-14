@@ -40,3 +40,7 @@ assert.equal(enemyHero.hp,84,'Player-owned outpost attacks enemy bots');
 assert.ok(Math.abs(recoveringAlly.hp-52.4)<1e-9,'Friendly troops beside their outpost recover health');
 
 console.log('Prime battle systems: all tests passed.');
+
+assert.ok(js.includes("const p=match.localEntity||match.player,camX=p.x-w/2,camY=p.y-h/2"),"Guest camera must follow its own fighter");
+assert.ok(js.includes("const localMapPlayer=match.localEntity||match.player"),"Guest minimap marker must follow its own fighter");
+console.log("Prime guest-local camera regression assertions passed");
