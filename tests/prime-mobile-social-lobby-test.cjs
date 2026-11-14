@@ -18,3 +18,10 @@ assert.ok(world.includes("match.online?.role==='guest'){match.online.attackPulse
 assert.ok(html.includes("mobile-stick")&&html.includes("mobile-attack"),"Android touch controls must remain available in online matches");
 assert.ok(world.includes("profile.elo=Number(stats.stats?.rating??profile.elo??0)")&&world.includes("st.rating??0"),"Android starting ELO must be zero");
 console.log("Android Prime cross-platform online + zero-ELO assertions passed");
+
+// Regression: some Android WebViews report landscape CSS orientation while the
+// actual phone viewport is portrait. The root layout must therefore be width-driven.
+assert.ok(html.includes('id="prime-mobile-root-layout-fix"'),"Mobile root layout fallback must be present");
+assert.ok(html.includes("body:not(.battle-active) .shell{display:block!important;width:100%!important"),"Mobile shell must be forced to full width outside battle");
+assert.ok(html.includes("body:not(.battle-active) .main{display:block!important;width:100%!important"),"Mobile main content must not collapse in a centered grid");
+console.log("Android Prime mobile viewport/root-layout regression assertions passed");
