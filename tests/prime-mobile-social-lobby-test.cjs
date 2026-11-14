@@ -25,7 +25,9 @@ assert.ok(html.includes('id="prime-mobile-root-layout-fix"'),"Mobile root layout
 assert.ok(html.includes("body:not(.battle-active) .shell{display:block!important;width:100%!important"),"Mobile shell must be forced to full width outside battle");
 assert.ok(html.includes("body:not(.battle-active) .main{display:block!important;width:100%!important"),"Mobile main content must not collapse in a centered grid");
 console.log("Android Prime mobile viewport/root-layout regression assertions passed");
-assert.ok(html.includes('id="prime-region"')&&html.includes("Москва")&&html.includes("Сингапур")&&html.includes("Франкфурт"),"Android settings must offer region preferences");
+assert.ok(html.includes('id="prime-region"')&&html.includes("Москва")&&html.includes("Сингапур")&&html.includes("Франкфурт")&&html.includes("Сан-Паулу")&&html.includes("Цюрих"),"Android settings must list supported Supabase execution regions");
+assert.ok(online.includes("EDGE_REGION_CODES")&&online.includes("x-region")&&online.includes("captureEdgeRegion"),"Android must apply region preferences to authenticated requests and detect the actual region");
+assert.ok(world.includes("window.PrimeOnlineEdgeRegion")&&world.includes("основная база"),"Android settings must explain the actual execution region and Stockholm database location");
 assert.ok(html.includes('id="prime-layout-toggle"')&&html.includes('id="prime-layout-reset"'),"Android settings must allow moving and resetting HUD positions");
 assert.ok(html.includes("prime-mobile-auth-layout")&&html.includes("width:min(620px,100%)")&&html.includes("min-height:56px"),"Android sign-in/register dialog must be larger and touch-friendly");
 assert.ok(html.includes('id="hud-ping"'),"Android battle HUD must show a dedicated ping chip");
