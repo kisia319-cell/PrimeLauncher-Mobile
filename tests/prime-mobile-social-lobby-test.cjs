@@ -35,6 +35,8 @@ assert.ok(html.includes('id="prime-lobby-mode"')&&world.includes("ВМЕСТЕ �
 assert.ok(online.includes("new RTCPeerConnection")&&online.includes("prime-game"),"Android must attempt a direct WebRTC gameplay channel");
 assert.ok(online.includes("stun:stun.cloudflare.com:3478")&&online.includes("maxRetransmits:0"),"Android P2P must use global STUN and low-latency unordered packets");
 assert.ok(online.includes("PrimeOnlineRelayPing")&&world.includes("activatePrimeUiLayoutEditor"),"Android must expose separate relay RTT and movable battle UI");
+assert.ok(online.includes("prime-moscow-turn-auth.skyrealm.workers.dev/ice")&&online.includes("await iceConfigPromise"),"Android must fetch time-limited Moscow TURN ICE credentials without blocking the STUN fallback");
+assert.ok(online.includes("TURN · Москва"),"Android must display when the selected ICE route uses the Moscow TURN relay");
 console.log("Android Prime P2P/region/co-op/auth/layout assertions passed");
 
 // Remove literal backslash-n separators from markup: WebView renders them as visible text.
