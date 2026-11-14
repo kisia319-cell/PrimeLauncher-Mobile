@@ -42,3 +42,13 @@ console.log("Android Prime P2P/region/co-op/auth/layout assertions passed");
 // Remove literal backslash-n separators from markup: WebView renders them as visible text.
 assert.ok(!html.includes(String.fromCharCode(92)+"n"),"Mobile launcher HTML must not render escaped newline tokens");
 console.log("Android Prime visible-markup cleanup assertions passed");
+
+
+// Regression: Android guest cooldown and direct touch attack.
+assert.ok(world.includes("if(match.online?.role==='guest'){attackCooldown=Math.max(0,attackCooldown-dt);drawArena();}"),'Android guest attack cooldown must advance');
+assert.ok(world.includes('window.PrimeMobileAttack=()=>'),'Android must expose direct mobile attack callback');
+assert.ok(html.includes("bindAttack('mobile-attack')")&&!html.includes("bindHold('mobile-attack','Space')"),'Android attack button must call game combat directly');
+assert.ok(world.includes("selfName:window.PrimeCurrentDisplayName||'Игрок'"),'Android match must retain authenticated local display name');
+assert.ok(world.includes("match.online?.selfName||window.PrimeCurrentDisplayName||'Игрок'"),'Android fighter must use authenticated name');
+assert.ok(world.includes("window.PrimeCurrentDisplayName=String(p.display_name||p.username||'Игрок')"),'Android matchmaking must resolve own profile name');
+assert.ok(html.includes('id="prime-nav-display-name"'),'Android navigation must not hardcode Kisia');
