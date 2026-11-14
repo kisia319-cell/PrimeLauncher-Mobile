@@ -25,6 +25,11 @@ assert.ok(html.includes('id="prime-mobile-root-layout-fix"'),"Mobile root layout
 assert.ok(html.includes("body:not(.battle-active) .shell{display:block!important;width:100%!important"),"Mobile shell must be forced to full width outside battle");
 assert.ok(html.includes("body:not(.battle-active) .main{display:block!important;width:100%!important"),"Mobile main content must not collapse in a centered grid");
 console.log("Android Prime mobile viewport/root-layout regression assertions passed");
+assert.ok(html.includes('id="prime-region"')&&html.includes("Москва"),"Android settings must offer the Moscow region preference");
+assert.ok(html.includes('id="hud-ping"'),"Android battle HUD must show a dedicated ping chip");
+assert.ok(html.includes('id="prime-lobby-mode"')&&world.includes("ВМЕСТЕ ПРОТИВ БОТОВ"),"Android lobby must offer co-op versus bots");
+assert.ok(online.includes("new RTCPeerConnection")&&online.includes("prime-game"),"Android must attempt a direct WebRTC gameplay channel");
+console.log("Android Prime P2P/region/co-op assertions passed");
 
 // Remove literal backslash-n separators from markup: WebView renders them as visible text.
 assert.ok(!html.includes(String.fromCharCode(92)+"n"),"Mobile launcher HTML must not render escaped newline tokens");
