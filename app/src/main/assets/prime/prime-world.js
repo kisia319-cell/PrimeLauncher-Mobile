@@ -97,16 +97,13 @@ function setPrimeAuthMode(mode){
 }
 function syncPrimeRegistrationTab(){
  const tab=$('prime-registration-tab');if(!tab)return;
- Promise.resolve(PrimeOnline.init()).then(ok=>{
-  const signed=!!ok&&PrimeOnline.hasSession();
-  tab.classList.toggle('hidden',signed);
-  if(signed&&scene==='registration')show('home');
-  if(!signed&&scene==='registration')$('prime-account-yes')?.focus?.();
- }).catch(()=>tab.classList.remove('hidden'));
+ // The Android registration entry is a permanent bottom navigation tab,
+ // regardless of whether the player is currently signed in.
+ tab.classList.remove('hidden');
 }
 function completePrimeAuth(){
  $('prime-auth-overlay').classList.add('hidden');
- $('prime-registration-tab')?.classList.add('hidden');
+ $('prime-registration-tab')?.classList.remove('hidden');
  if(scene==='registration')show('home');
 }
 function openPrimeAuth(mode='login'){setPrimeAuthMode(mode);$('prime-auth-overlay')?.classList.remove('hidden');}
@@ -114,7 +111,7 @@ $('prime-auth-close')?.addEventListener('click',()=>$('prime-auth-overlay').clas
 $('prime-auth-switch')?.addEventListener('click',()=>setPrimeAuthMode(primeAuthMode==='login'?'register':'login'));
 $('prime-account-yes')?.addEventListener('click',()=>openPrimeAuth('login'));
 $('prime-account-no')?.addEventListener('click',()=>openPrimeAuth('register'));
-$('prime-registration-tab')?.addEventListener('click',()=>{if(PrimeOnline.hasSession()){syncPrimeRegistrationTab();show('home');return;}show('registration');});
+// The shared navigation handler below opens the registration page even for signed-in players.
 $('prime-auth-submit')?.addEventListener('click',async()=>{
  const msg=$('prime-auth-message'),btn=$('prime-auth-submit');btn.disabled=true;msg.textContent='Подключение...';
  try{
