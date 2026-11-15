@@ -78,3 +78,10 @@ assert.ok(!world.includes("ctx.fillRect(-13,-23,26,42)"),'Android fighter hit ef
 assert.ok(!html.includes('body.online-match .battle-tools #build-toggle'),'Android online mode must not hide the build button');
 assert.ok(html.includes('id="balance-toggle" class="tool-btn"'),'Android online mode must expose the balance button');
 console.log('Android online build/balance/co-op respawn regression assertions passed');
+
+
+// Ranked result integrity: a pending host result must receive a second authenticated confirmation.
+assert.ok(world.includes("state.status==='awaiting_confirmation'")&&world.includes("PrimeOnline.finish(online.match_id,winner,'completed')"),'Android guest must confirm the proposed winner before ELO is updated');
+assert.ok(world.includes("result.status==='disputed'")&&world.includes('ELO не изменён'),'Android must keep ELO unchanged when players disagree');
+assert.ok(world.includes('const rankedOnline=!!online&&online.mode!==\'bots\';if(!rankedOnline){profile.matches++;'),'Android ranked counters must be refreshed from the server rather than local client claims');
+console.log('Android dual-player result confirmation and ELO guard assertions passed');
