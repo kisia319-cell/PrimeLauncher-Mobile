@@ -54,6 +54,8 @@ jobs:
           node --check tests/prime-mobile-social-lobby-test.cjs
           node tests/prime-mobile-social-lobby-test.cjs
           node tests/prime-mobile-battle-systems-test.cjs
+          node --check tests/prime-mobile-mine-regression-test.cjs
+          node tests/prime-mobile-mine-regression-test.cjs
       - name: Build debug APK with the persistent Prime signing key
         env:
           PRIME_SIGNING_KEY: ${{ runner.temp }}/prime-mobile-signing.jks
