@@ -239,7 +239,7 @@ body.prime-ui-layout-edit #arena-minimap,body.prime-ui-layout-edit .battle-tools
  <section id="friends-page" class="hidden">
   <div class="card" style="max-width:1050px">
    <div class="eyebrow">PRIME SOCIAL</div><h1 style="margin:8px 0 5px">Друзья и лобби</h1>
-   <p style="color:#aaa">Добавляй друзей и приглашай второго игрока. Можно сразиться 1 × 1 или объединиться вдвоём против команды AI-ботов.</p>
+   <p style="color:#aaa">Добавляй друга для закрытого онлайн-матча. Выбирай 1 × 1, 2 × 2 или 3 × 3: дополнительные бойцы в командах управляются ИИ. Есть и отдельная кооперация вдвоём против ботов.</p>
    <div style="display:flex;gap:9px;flex-wrap:wrap;margin:14px 0">
     <input id="prime-friend-search" maxlength="20" placeholder="Ник игрока" style="flex:1;min-width:180px;padding:12px;background:#222;color:white;border:1px solid #555;border-radius:8px">
     <button class="primary" id="prime-friend-find">Найти игрока</button>
@@ -253,7 +253,7 @@ body.prime-ui-layout-edit #arena-minimap,body.prime-ui-layout-edit .battle-tools
    <div class="card" style="margin-top:14px">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
      <div><h2 style="font-size:18px;margin:0">Твоё лобби</h2><small style="color:#999">Закрытая комната для тебя и одного друга</small></div>
-     <select id="prime-lobby-mode" aria-label="Режим лобби" style="padding:10px;background:#242424;color:#fff;border:1px solid #555;border-radius:8px"><option value="pvp">Дуэль 1 × 1</option><option value="bots">Вдвоём против ботов</option></select><button class="primary" id="prime-lobby-create">Создать лобби</button>
+     <select id="prime-lobby-mode" aria-label="Режим лобби" style="padding:10px;background:#242424;color:#fff;border:1px solid #555;border-radius:8px"><option value="pvp">Командная дуэль</option><option value="bots">Вдвоём против ботов</option></select><select id="prime-team-size" aria-label="Размер команды" style="padding:10px;background:#242424;color:#fff;border:1px solid #555;border-radius:8px"><option value="1">1 × 1</option><option value="2">2 × 2</option><option value="3">3 × 3</option></select><button class="primary" id="prime-lobby-create">Создать лобби</button>
     </div>
     <div id="prime-lobby-panel" style="margin-top:14px;color:#aaa">Лобби пока не создано.</div>
    </div>
