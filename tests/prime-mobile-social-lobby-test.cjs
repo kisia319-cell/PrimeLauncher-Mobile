@@ -59,3 +59,7 @@ assert.ok(html.includes('id=\"prime-nav-display-name\"')&&!world.includes("isPla
 assert.ok(html.includes("bindAttack('mobile-attack')"),'Android touch attack button must use the dedicated direct-action handler');
 assert.ok(world.includes('cfg.selfName||match.localEntity?.name'),'Android online HUD must display the local authenticated player name');
 console.log('Android touch attack and account-name regression assertions passed');
+
+assert.ok(world.includes("const pages=['home','rank','history','profile','friends','registration','settings','menu','battle']"),'Android page router must keep Friends/Lobby reachable');
+assert.ok(world.includes('const [friendsData,lobbyData]=await Promise.all([PrimeOnline.friends(),PrimeOnline.lobby()]);'),'Android friends loading must not fail because of an unnecessary profile request');
+console.log('Android Prime social page routing and resilient loading assertions passed');
