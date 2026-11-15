@@ -56,7 +56,6 @@ body.prime-building #arena{cursor:crosshair}
 .feed-line{display:inline-block;max-width:100%;margin:2px 0;padding:5px 9px;border-radius:7px;background:#08110ddd;border:1px solid #dceee31b;color:#d9e8dc;font:700 10px/1.3 Segoe UI,sans-serif;text-shadow:0 1px 2px #000;opacity:.78}
 .feed-line.latest{border-color:#ffb36e88;color:#fff;opacity:1}
 @media(max-width:680px){#arena-minimap{width:145px!important;height:92px!important;right:8px!important;bottom:67px!important}#battle-feed{right:8px;top:74px;width:44vw}.feed-line{font-size:9px}}
-#balance-panel,#balance-toggle{display:none!important}
 </style><style>
 /* PrimeLauncher Android adaptation */
 @media(max-width:760px){
@@ -290,7 +289,7 @@ body.prime-ui-layout-edit #arena-minimap,body.prime-ui-layout-edit .battle-tools
  <div id="battle-feed" aria-live="polite"></div>
  <div class="battle-tools">
   <button class="tool-btn" id="build-toggle">🏗 Строительство</button> <button class="tool-btn" id="troops-halt">|| Остановить воинов</button> <button class="tool-btn" id="regroup-troops">Собрать войска</button> <button class="tool-btn" id="guard-mode">Оборона базы: ВКЛ</button> <button class="tool-btn" id="rally-troops">Точка сбора</button> <button class="tool-btn" id="ability-warcry">⚔ Клич · ГОТОВО</button> <button class="tool-btn" id="ability-shield">🛡 Щит · ГОТОВО</button> <button class="tool-btn" id="ability-volley">☄ Залп · ГОТОВО</button> <button class="tool-btn" id="hire-mercenaries">🏕 Наёмники · 120 ◆ / боец</button> <button class="tool-btn" id="leave-match">Выйти из матча</button>
-  <button class="tool-btn hidden" id="balance-toggle">Баланс</button><button class="tool-btn hidden" id="upgrade-tower">Улучшить башню</button><button class="tool-btn hidden" id="train-unit">Нанять воина</button><button class="tool-btn hidden" id="bot-info-toggle">Соперник</button>
+  <button id="balance-toggle" class="tool-btn">Баланс</button><button class="tool-btn hidden" id="upgrade-tower">Улучшить башню</button><button class="tool-btn hidden" id="train-unit">Нанять воина</button><button class="tool-btn hidden" id="bot-info-toggle">Соперник</button>
 
  </div>
  <div class="build-panel hidden battle-panel" id="build-panel">
