@@ -65,7 +65,7 @@ assert.ok(world.includes('const [friendsData,lobbyData]=await Promise.all([Prime
 console.log('Android Prime social page routing and resilient loading assertions passed');
 
 // Regression: accepted friends must always get an actionable invite control.
-assert.ok(world.includes('if(rel.status==="accepted"){')&&world.includes('const created=await PrimeOnline.createLobby(mode);')&&world.includes('await PrimeOnline.inviteLobbyFriend(primeCurrentLobby.id,person.id);'),'Android invite action must create an owned lobby when needed, then send the invite');
+assert.ok(world.includes('if(rel.status==="accepted"){')&&world.includes('const created=await PrimeOnline.createLobby(mode,selectedTeamSize);')&&world.includes('await PrimeOnline.inviteLobbyFriend(primeCurrentLobby.id,person.id);'),'Android invite action must create an owned lobby when needed, then send the invite');
 console.log('Android Prime invite auto-create regression assertions passed');
 
 // online build/balance and co-op teammate recovery regression checks
@@ -85,3 +85,11 @@ assert.ok(world.includes("state.status==='awaiting_confirmation'")&&world.includ
 assert.ok(world.includes("result.status==='disputed'")&&world.includes('ELO не изменён'),'Android must keep ELO unchanged when players disagree');
 assert.ok(world.includes('const rankedOnline=!!online&&online.mode!==\'bots\';if(!rankedOnline){profile.matches++;'),'Android ranked counters must be refreshed from the server rather than local client claims');
 console.log('Android dual-player result confirmation and ELO guard assertions passed');
+
+
+// Private online team formats: team size travels through the mobile form, lobby and host match.
+assert.ok(html.includes('id="prime-team-size"')&&html.includes('<option value="3">3 × 3</option>'),'Mobile lobby must expose the 3v3 team-size option');
+assert.ok(online.includes('createLobby:(mode,teamSize=1)')&&online.includes('team_size:Number(teamSize)||1'),'Mobile client must pass selected team size to the lobby API');
+assert.ok(world.includes("teamSize=mode==='bots'?2:Math.max(1,Math.min(3,Number(data.team_size)||1))'),'Mobile match must initialize from the lobby team size');
+assert.ok(world.includes("match.online.mode==='pvp'&&match.team>1")&&world.includes("if(bot.isRemotePlayer&&m.online?.mode==='pvp')continue;'),'Mobile 2v2/3v3 must run AI allies while keeping the human fighter remotely controlled');
+console.log('Android Prime private 2v2/3v3 team-format assertions passed');
