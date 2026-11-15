@@ -73,7 +73,7 @@ console.log('Android Prime invite auto-create regression assertions passed');
 assert.ok(world.includes('processRemoteBuildRequest()')&&world.includes('buildRequest:match.online.buildRequest||null'),'Android online guests must send build requests to the host');
 assert.ok(world.includes('commitBuildPlacement(kind,placement)')&&world.includes('window.PrimeInputSent'),'Android host must commit authoritative guest building requests');
 assert.ok(world.includes('coins=Math.floor(m.playerCoins)')&&world.includes('Общий баланс команды'),'Android guests must see the shared match balance');
-assert.ok(world.includes('ally.respawnAt=match.elapsed+12')&&world.includes('ally.alive=true;ally.respawnAt=0'),'Android co-op teammate must respawn after death');
+assert.ok(world.includes("target.respawnAt=match.elapsed+12")&&world.includes('ally.alive=true;ally.respawnAt=0'),'Android co-op teammate must respawn after death');
 assert.ok(!world.includes("ctx.fillRect(-13,-23,26,42)"),'Android fighter hit effect must not draw a white rectangle over dead players');
 assert.ok(!html.includes('body.online-match .battle-tools #build-toggle'),'Android online mode must not hide the build button');
 assert.ok(html.includes('id="balance-toggle" class="tool-btn"'),'Android online mode must expose the balance button');
