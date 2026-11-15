@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const js=fs.readFileSync(path.join(root,'app/src/main/assets/prime/prime-world.js'),'utf8');
+const html=fs.readFileSync(path.join(root,'app/src/main/assets/prime/index.html'),'utf8');
+assert.ok(js.includes('match.mine={x:mineX')&&js.includes('guardCount:4')&&js.includes('mineGuard:true'), 'Mobile match must create a guarded neutral mine');
+assert.ok(js.includes('if(guards.length){mine.captureTeam=null;mine.progress=0;}')&&js.includes('if(mine.progress>=12){mine.owner=team;'), 'Mine capture must require cleared guards and capture time');
+assert.ok(js.includes('incomePerMinute:200')&&js.includes('(mine.incomePerMinute/60)*dt'), 'Mine must generate 200 gold per minute');
+assert.ok(js.includes('defenderCost:900')&&js.includes('defenderLimit:2')&&js.includes('if(spawned>=mine.defenderLimit)return false'), 'Mine defender purchase must cost 900 and cap at two');
+assert.ok(js.includes('function buildEnemySupportStructure(bot,kind)'), 'Mobile enemy bots must construct support buildings');
+assert.ok(js.includes('function buildPlacementAtWorld(rawX,rawY,team=0,owner=null)')&&js.includes('home=team===1?m.enemyBase'), 'Mobile remote players must build on their own team's side');
+assert.ok(js.includes("const team=m.online.mode==='bots'?0:1,owner="), 'Mobile online build actions must use authoritative team assignment');
+assert.ok(js.includes('processRemoteMineGuardRequest()')&&js.includes('mineGuardRequest:match.online.mineGuardRequest||null'), 'Mobile remote players must be able to hire mine defenders');
+assert.ok(js.includes('unit.team===2')&&js.includes('other.team===2'), 'Neutral mobs must be part of mobile combat');
+assert.ok(html.includes('id="hud-mine"')&&html.includes('id="mine-guards"'), 'Mobile UI must show the mine and its defender control');
+console.log('Prime mobile mine, team construction, enemy AI and defender-cap regression checks passed');
