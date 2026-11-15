@@ -63,3 +63,7 @@ console.log('Android touch attack and account-name regression assertions passed'
 assert.ok(world.includes("const pages=['home','rank','history','profile','friends','registration','settings','menu','battle']"),'Android page router must keep Friends/Lobby reachable');
 assert.ok(world.includes('const [friendsData,lobbyData]=await Promise.all([PrimeOnline.friends(),PrimeOnline.lobby()]);'),'Android friends loading must not fail because of an unnecessary profile request');
 console.log('Android Prime social page routing and resilient loading assertions passed');
+
+// Regression: accepted friends must always get an actionable invite control.
+assert.ok(world.includes('if(rel.status==="accepted"){')&&world.includes('const created=await PrimeOnline.createLobby(mode);')&&world.includes('await PrimeOnline.inviteLobbyFriend(primeCurrentLobby.id,person.id);'),'Android invite action must create an owned lobby when needed, then send the invite');
+console.log('Android Prime invite auto-create regression assertions passed');
