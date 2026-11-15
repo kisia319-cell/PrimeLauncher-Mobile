@@ -356,7 +356,7 @@ async function renderPrimeFriends(){
  if(primeSocialBusy)return;primeSocialBusy=true;
  try{
   await PrimeOnline.init();if(!PrimeOnline.hasSession()){openPrimeAuth();socialMessage("Войди в аккаунт, чтобы пользоваться друзьями и лобби.",true);return;}
-  const [friendsData,lobbyData]=await Promise.all([PrimeOnline.friends(),PrimeOnline.lobby(),PrimeOnline.profile()]);
+  const [friendsData,lobbyData]=await Promise.all([PrimeOnline.friends(),PrimeOnline.lobby()]);
   const list=$("prime-friend-list"),invites=$("prime-lobby-invites"),panel=$("prime-lobby-panel");
   if(!list||!invites||!panel)return;
   list.replaceChildren();invites.replaceChildren();panel.replaceChildren();primeCurrentLobby=lobbyData.lobby||null;
