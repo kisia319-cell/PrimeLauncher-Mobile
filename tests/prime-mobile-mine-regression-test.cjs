@@ -8,7 +8,7 @@ assert.ok(js.includes('if(guards.length){mine.captureTeam=null;mine.progress=0;}
 assert.ok(js.includes('incomePerMinute:200')&&js.includes('(mine.incomePerMinute/60)*dt'), 'Mine must generate 200 gold per minute');
 assert.ok(js.includes('defenderCost:900')&&js.includes('defenderLimit:2')&&js.includes('if(spawned>=mine.defenderLimit)return false'), 'Mine defender purchase must cost 900 and cap at two');
 assert.ok(js.includes('function buildEnemySupportStructure(bot,kind)'), 'Mobile enemy bots must construct support buildings');
-assert.ok(js.includes('function buildPlacementAtWorld(rawX,rawY,team=0,owner=null)')&&js.includes('home=team===1?m.enemyBase'), 'Mobile remote players must build on their own team's side');
+assert.ok(js.includes('function buildPlacementAtWorld(rawX,rawY,team=0,owner=null)')&&js.includes('home=team===1?m.enemyBase'), 'Mobile remote players must build on their own side');
 assert.ok(js.includes("const team=m.online.mode==='bots'?0:1,owner="), 'Mobile online build actions must use authoritative team assignment');
 assert.ok(js.includes('processRemoteMineGuardRequest()')&&js.includes('mineGuardRequest:match.online.mineGuardRequest||null'), 'Mobile remote players must be able to hire mine defenders');
 assert.ok(js.includes('unit.team===2')&&js.includes('other.team===2'), 'Neutral mobs must be part of mobile combat');
