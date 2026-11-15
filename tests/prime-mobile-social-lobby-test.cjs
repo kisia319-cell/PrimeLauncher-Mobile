@@ -81,7 +81,7 @@ console.log('Android online build/balance/co-op respawn regression assertions pa
 
 
 // Ranked result integrity: a pending host result must receive a second authenticated confirmation.
-assert.ok(world.includes("state.status==='awaiting_confirmation'")&&world.includes("PrimeOnline.finish(online.match_id,winner,'completed')"),'Android guest must confirm the proposed winner before ELO is updated');
+assert.ok(world.includes("state.status==='awaiting_confirmation'")&&world.includes("PrimeOnline.finish(pending.matchId,reportedWinner,'completed')"),'Android guest must confirm the proposed winner before ELO is updated');
 assert.ok(world.includes("online.role==='guest'")&&world.includes("result-confirm-controls")&&world.includes("submitRankedResultConfirmation(true)")&&world.includes("submitRankedResultConfirmation(false)"),'Android guest must explicitly confirm or dispute the result');
 assert.ok(world.includes("result.status==='disputed'")&&world.includes('ELO не изменён'),'Android must keep ELO unchanged when players disagree');
 assert.ok(world.includes('const rankedOnline=!!online&&online.mode!==\'bots\';if(!rankedOnline){profile.matches++;'),'Android ranked counters must be refreshed from the server rather than local client claims');
