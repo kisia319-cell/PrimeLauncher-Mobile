@@ -91,5 +91,5 @@ console.log('Android dual-player result confirmation and ELO guard assertions pa
 assert.ok(html.includes('id="prime-team-size"')&&html.includes('<option value="3">3 × 3</option>'),'Mobile lobby must expose the 3v3 team-size option');
 assert.ok(online.includes('createLobby:(mode,teamSize=1)')&&online.includes('team_size:Number(teamSize)||1'),'Mobile client must pass selected team size to the lobby API');
 assert.ok(world.includes("teamSize=mode==='bots'?2:Math.max(1,Math.min(3,Number(data.team_size)||1))"),"Mobile match must initialize from the lobby team size");
-assert.ok(world.includes("match.online.mode==='pvp'&&match.team>1")&&world.includes("if(bot.isRemotePlayer&&m.online?.mode==='pvp')continue;'),'Mobile 2v2/3v3 must run AI allies while keeping the human fighter remotely controlled');
+assert.ok(world.includes("match.online.mode==='pvp'&&match.team>1")&&world.includes("if(bot.isRemotePlayer&&m.online?.mode==='pvp')continue;"),"Mobile 2v2/3v3 must run AI allies while keeping the human fighter remotely controlled");
 console.log('Android Prime private 2v2/3v3 team-format assertions passed');
