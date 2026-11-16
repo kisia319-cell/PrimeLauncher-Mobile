@@ -344,3 +344,36 @@ window.PrimeOnline={
  leave:matchId=>call("/api/prime/leave","POST",{match_id:matchId})
 };
 })();
+
+// TEMPORARY PRE-RELEASE OFFLINE MODE.
+// Keep the online implementation in this file; only gate its entry points and UI.
+(()=>{"use strict";
+const NOTICE="Внимание онлайн-сервера будут доступны только после того, как игра появится в Steam и других площадках";
+const disabled=()=>Promise.resolve({disabled:true,message:"Онлайн-функции временно отключены до релиза игры."});
+function install(){
+ if(document.getElementById("prime-pre-release-notice"))return;
+ const style=document.createElement("style");
+ style.textContent=".prime-online-disabled{display:none!important}#prime-pre-release-notice{position:fixed;inset:0;z-index:99999;background:#000d;display:grid;place-items:center;padding:20px;font-family:Inter,Segoe UI,sans-serif}#prime-pre-release-notice .notice-card{width:min(520px,100%);padding:28px;border:1px solid #ff793b;border-radius:16px;background:linear-gradient(145deg,#24150f,#101010);color:#fff;text-align:center;box-shadow:0 20px 80px #000b}#prime-pre-release-notice h2{margin:0 0 14px;color:#ff9a5c;font-size:23px}#prime-pre-release-notice p{color:#eee;line-height:1.6}#prime-pre-release-notice button{margin-top:16px;padding:12px 30px;border:0;border-radius:9px;background:linear-gradient(100deg,#ff4b12,#ff812b);font-weight:900;color:#170a04}#prime-pre-release-notice button:disabled{opacity:.4;cursor:not-allowed}";
+ document.head.appendChild(style);
+ const overlay=document.createElement("div");overlay.id="prime-pre-release-notice";
+ overlay.innerHTML='<div class="notice-card" role="dialog" aria-modal="true"><h2>Важное уведомление</h2><p></p><button type="button" disabled>Хорошо</button></div>';
+ overlay.querySelector("p").textContent=NOTICE;document.body.appendChild(overlay);
+ const ok=overlay.querySelector("button");setTimeout(()=>{ok.disabled=false;},3500);
+ ok.addEventListener("click",()=>overlay.remove());
+ const hide=el=>{if(el)el.classList.add("prime-online-disabled");};
+ document.querySelectorAll('[data-kind="online"]').forEach(hide);
+ document.querySelectorAll("button,a,[role=tab]").forEach(el=>{
+  const t=(el.innerText||el.textContent||"").trim().toLowerCase();
+  if(/кооп|co[ -]?op|онлайн|online|друзья|friends|лобби|lobby|рейтинг|leaderboard/.test(t))hide(el);
+ });
+ // Do not start matchmaking, lobby, social, or realtime traffic during the pre-release period.
+ const api=window.PrimeOnline;
+ if(api){
+  ["queue","cancelQueue","status","leaderboard","stats","lobby","createLobby","inviteLobbyFriend","respondLobbyInvite","startLobby","leaveLobby","friends","searchPlayers","addFriend","respondFriend","finish","leave"].forEach(k=>{if(typeof api[k]==="function")api[k]=disabled;});
+  api.startTransport=function(){api.stopTransport?.();window.PrimeOnlineTransport="OFFLINE";window.PrimeOnlinePath="Онлайн временно отключён";window.PrimeOnlinePingSource="OFFLINE";};
+  api.stopTransport?.();
+ }
+ window.PrimeOnlineTemporarilyDisabled=true;
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
